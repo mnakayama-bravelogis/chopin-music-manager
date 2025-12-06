@@ -1,5 +1,28 @@
 // Data is loaded from data.js via script tag (window.chopinWorks)
 
+// version 2.0.1
+// Fail-safe: Inject critical mobile styles directly to bypass CSS caching issues
+(function injectMobileStyles() {
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @media (max-width: 768px) {
+            .desktop-only { display: none !important; }
+            .mobile-only { display: block !important; }
+            .mobile-hide-force { display: none !important; } /* Triple safety */
+            /* Extra safety for the red box elements explicitly */
+            td.col-comment, td.col-action {
+                display: none !important; 
+            }
+            /* Re-enable the mobile wrapper which might be a td */
+            td.col-mobile-wrapper {
+                display: block !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    console.log("Mobile styles injected");
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- Elements ---
     const authOverlay = document.getElementById('auth-overlay');
@@ -614,8 +637,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td class="col-links">${linksHtml}</td>
                 
                 <!-- Desktop Columns -->
-                <td class="col-comment desktop-only">${escapeHtml(song.comment || '')}</td>
-                <td class="col-action desktop-only">
+                <td class="col-comment desktop-only mobile-hide-force">${escapeHtml(song.comment || '')}</td>
+                <td class="col-action desktop-only mobile-hide-force">
                     <button class="btn-icon-row btn-edit-row" data-id="${song.id}">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </button>
