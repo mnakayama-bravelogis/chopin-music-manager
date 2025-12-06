@@ -619,6 +619,8 @@ textarea:focus {
     margin-bottom: 0.5rem;
     background: #f8fbff;
     border: 2px solid #e0e7ff;
+    border-radius: 12px;
+    /* More rounded */
 }
 
 .auth-box input:focus {
