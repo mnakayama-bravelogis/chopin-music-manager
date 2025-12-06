@@ -1,0 +1,525 @@
+// Data is loaded from data.js via script tag (window.chopinWorks)
+
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Elements ---
+    const songForm = document.getElementById('song-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const cancelBtn = document.getElementById('cancel-edit-btn');
+
+    const opusSelect = document.getElementById('opus-select');
+    const noSelect = document.getElementById('no-select');
+    const titleInput = document.getElementById('title');
+    const genreInput = document.getElementById('genre');
+    const yearInput = document.getElementById('year');
+    const youtubeContainer = document.getElementById('youtube-container');
+    const addYoutubeBtn = document.getElementById('add-youtube-btn');
+
+    const songListBody = document.getElementById('song-list-body');
+    const emptyState = document.getElementById('empty-state');
+    const tableHeader = document.querySelector('.song-table thead');
+
+    // --- State Management ---
+    const STORAGE_KEY = 'chopin_manager_library';
+    let library = loadLibrary();
+
+    // Sort/Filter State
+    let sortConfig = {
+        key: 'op', // 'op', 'rating'
+        direction: 'asc'
+    };
+    let genreFilter = '';
+
+    // Edit State
+    let editingId = null;
+
+    // --- Initialization ---
+    initOpusDropdown();
+    initGenreFilter();
+    renderLibrary();
+
+    // --- Event Listeners ---
+    addYoutubeBtn.addEventListener('click', () => addYoutubeInput(''));
+
+    opusSelect.addEventListener('change', handleOpusChange);
+    noSelect.addEventListener('change', handleNoChange);
+
+    // Genre Filter Listener
+    document.getElementById('genre-filter').addEventListener('change', (e) => {
+        genreFilter = e.target.value;
+        renderLibrary();
+    });
+
+    // Stop propagation on filter click to prevent sorting if we had sorting on th (but we removed it)
+    document.getElementById('genre-filter').addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+
+    songForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (editingId) {
+            updateSong();
+        } else {
+            addSong();
+        }
+    });
+
+    cancelBtn.addEventListener('click', resetForm);
+
+    // Sorting Headers
+    tableHeader.addEventListener('click', (e) => {
+        const th = e.target.closest('th');
+        if (!th || !th.dataset.sort) return;
+
+        const key = th.dataset.sort;
+        if (sortConfig.key === key) {
+            // Toggle direction
+            sortConfig.direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            sortConfig.key = key;
+            sortConfig.direction = 'asc'; // Default new sort is asc
+            if (key === 'rating') sortConfig.direction = 'desc';
+        }
+        renderLibrary();
+    });
+
+    // --- Functions (Logic) ---
+
+    function initGenreFilter() {
+        const filterSelect = document.getElementById('genre-filter');
+        if (!filterSelect || !window.chopinWorks) return;
+
+        const genres = [...new Set(window.chopinWorks.map(w => w.genre))].sort();
+        genres.forEach(g => {
+            const option = document.createElement('option');
+            option.value = g;
+            option.textContent = g;
+            filterSelect.appendChild(option);
+        });
+    }
+
+    function initOpusDropdown() {
+        if (!window.chopinWorks) return;
+        // Extract unique Opus numbers and sort them
+        const opuses = [...new Set(window.chopinWorks.map(w => w.op))].sort((a, b) => {
+            // Handle "posth" or non-numeric logic if needed, but chops are mostly numeric
+            // Some might contain non-digits, assume parse float
+            return parseFloat(a) - parseFloat(b);
+        });
+
+        opuses.forEach(op => {
+            const option = document.createElement('option');
+            option.value = op;
+            option.textContent = `Op. ${op}`;
+            opusSelect.appendChild(option);
+        });
+    }
+
+    function handleOpusChange() {
+        const selectedOp = opusSelect.value;
+        noSelect.innerHTML = '<option value="" disabled selected>Select No.</option>';
+        noSelect.disabled = true;
+
+        // Reset auto-filled fields
+        titleInput.value = '';
+        genreInput.value = '';
+        yearInput.value = '';
+
+        // "Smart Op/No" - if No doesn't exist (only one work and no number explicit in text), we still need to handle it.
+        // Actually, logic requested: "If No selection is available... disable if No doesn't exist"
+        // But in our data, even single works have "no": "1".
+        // Let's check if there are multiple works for this Op.
+
+        if (!selectedOp) return;
+
+        const works = window.chopinWorks.filter(w => w.op === selectedOp);
+
+        if (works.length > 0) {
+            // Sort works by No
+            works.sort((a, b) => parseInt(a.no) - parseInt(b.no));
+
+            // Check if we should enable No dropdown
+            // If works.length > 1, surely enable.
+            // If works.length === 1 and it is nominally "1", should we disable?
+            // User requirement: "Disable No selection if No doesn't exist".
+            // Implementation: Auto-select No.1 and disable dropdown if        if (works.length === 0) return;
+
+            // Populate No Dropdown
+            if (works.length === 1) {
+                // Single work in Opus (e.g., Op.11, Op.53)
+                const work = works[0];
+                const option = document.createElement('option');
+                option.value = work.no; // Keep value for logic
+                option.textContent = '-';   // Display as dash (User Request)
+                noSelect.appendChild(option);
+
+                // Auto-select and disable
+                noSelect.value = work.no;
+                noSelect.disabled = true;
+                noSelect.classList.add('readonly-input');
+            } else {
+                // Multiple works (e.g., Op.10, Op.28)
+                // Add a default placeholder if needed, or just list them.
+                // User flow: Select Opus -> Select No.
+                // Let's add a default "Select No" option so they have to pick? 
+                // Or just list them. The original code listed them.
+                // Let's stick to listing them.
+
+                works.forEach(work => {
+                    const option = document.createElement('option');
+                    option.value = work.no;
+                    option.textContent = `No.${work.no}`;
+                    noSelect.appendChild(option);
+                });
+
+                // If we want to force user to select No, we might want a placeholder?
+                // "No." is usually 1-indexed. work.number is "1", "2".
+                // Currently it auto-selects the first one (No.1) because it's first in list.
+                // Let's trigger change.
+                noSelect.selectedIndex = 0;
+                noSelect.disabled = false;
+            }
+            handleNoChange(); // Trigger fill
+        }
+    }
+
+    function handleNoChange() {
+        const selectedOp = opusSelect.value;
+        const selectedNo = noSelect.value;
+
+        if (!selectedOp || !selectedNo) return;
+
+        const work = window.chopinWorks.find(w => w.op === selectedOp && w.no === selectedNo);
+        if (work) {
+            titleInput.value = `${work.titleJa} (${work.titleEn})`;
+            genreInput.value = work.genre;
+            yearInput.value = work.year;
+        }
+    }
+
+    function addYoutubeInput(value = '') {
+        const div = document.createElement('div');
+        div.className = 'youtube-input-row';
+        div.innerHTML = `
+            <input type="url" name="youtube[]" placeholder="https://www.youtube.com/watch?v=..." value="${value}">
+        `;
+        youtubeContainer.appendChild(div);
+    }
+
+    function loadLibrary() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        return stored ? JSON.parse(stored) : [];
+    }
+
+    function saveLibrary() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(library));
+    }
+
+    function addSong() {
+        const songData = collectFormData();
+        if (!songData) return;
+
+        library.push(songData); // Push (append) then sort? Or unshift? User said Sort default is Op->No. 
+        // We will sort in render, so order in array doesn't matter much.
+
+        saveLibrary();
+        renderLibrary();
+        resetForm();
+    }
+
+    function updateSong() {
+        const songData = collectFormData();
+        if (!songData) return;
+
+        // Preserve original creation date and ID
+        const index = library.findIndex(s => s.id === editingId);
+        if (index !== -1) {
+            songData.id = editingId;
+            songData.createdAt = library[index].createdAt;
+            library[index] = songData;
+            saveLibrary();
+            renderLibrary();
+            resetForm();
+        }
+    }
+
+    function collectFormData() {
+        const op = opusSelect.value;
+        const no = noSelect.value;
+        const comment = document.getElementById('comment').value.trim();
+
+        if (!op || !no) {
+            alert('Opus and No. are required.');
+            return null;
+        }
+
+        const work = window.chopinWorks.find(w => w.op === op && w.no === no);
+        if (!work) return null;
+
+        // Collect YouTube URLs
+        const youtubeInputs = document.querySelectorAll('input[name="youtube[]"]');
+        const youtubeUrls = Array.from(youtubeInputs)
+            .map(input => input.value.trim())
+            .filter(url => url !== '');
+
+        // Rating
+        const ratingInput = document.querySelector('input[name="rating"]:checked');
+        const rating = ratingInput ? parseFloat(ratingInput.value) : 0;
+
+        return {
+            id: crypto.randomUUID(),
+            createdAt: new Date().toISOString(),
+            opus: op,
+            number: no,
+            titleJa: work.titleJa,
+            titleEn: work.titleEn,
+            genre: work.genre,
+            year: work.year,
+            rating,
+            youtubeUrls,
+            comment
+        };
+    }
+
+    function editSong(id) {
+        const song = library.find(s => s.id === id);
+        if (!song) return;
+
+        editingId = id;
+
+        // Scroll to form
+        songForm.scrollIntoView({ behavior: 'smooth' });
+
+        // Change Buttons
+        submitBtn.classList.add('editing');
+        submitBtn.querySelector('span').textContent = '更新する';
+        cancelBtn.classList.add('active');
+
+        // Fill Data
+        opusSelect.value = song.opus;
+        handleOpusChange(); // Triggers generation of No options
+
+        noSelect.value = song.number;
+        // Check if handleOpusChange disabled it (smart logic) - we should keep it that way if it matches
+        if (noSelect.options.length <= 1) noSelect.disabled = true; // wait, handleOpusChange handles this
+
+        handleNoChange(); // Fills Title/Genre/Year
+
+        // Rating
+        const ratingRadio = document.querySelector(`input[name="rating"][value="${song.rating}"]`);
+        if (ratingRadio) ratingRadio.checked = true;
+
+        // Comment
+        document.getElementById('comment').value = song.comment;
+
+        // YouTube
+        youtubeContainer.innerHTML = '<label>YouTube URLs <button type="button" id="add-youtube-btn-edit" class="btn-icon-small"><i class="fa-solid fa-plus"></i></button></label>';
+        // Re-attach listener to new button
+        document.getElementById('add-youtube-btn-edit').addEventListener('click', () => addYoutubeInput(''));
+
+        if (song.youtubeUrls && song.youtubeUrls.length > 0) {
+            song.youtubeUrls.forEach(url => addYoutubeInput(url));
+        } else {
+            addYoutubeInput('');
+        }
+    }
+
+    function resetForm() {
+        songForm.reset();
+        editingId = null;
+
+        submitBtn.classList.remove('editing');
+        submitBtn.querySelector('span').textContent = '登録する';
+        cancelBtn.classList.remove('active');
+
+        noSelect.innerHTML = '<option value="" disabled selected>Select No.</option>';
+        noSelect.disabled = true;
+
+        // Reset YouTube
+        youtubeContainer.innerHTML = '<label>YouTube URLs <button type="button" id="add-youtube-btn" class="btn-icon-small"><i class="fa-solid fa-plus"></i></button></label>';
+        document.getElementById('add-youtube-btn').addEventListener('click', () => addYoutubeInput(''));
+        addYoutubeInput('');
+    }
+
+    function deleteSongInternal(id) {
+        if (!confirm('削除してよろしいですか？')) return;
+        library = library.filter(song => song.id !== id);
+        saveLibrary();
+        renderLibrary();
+        if (editingId === id) resetForm();
+    }
+
+    function renderLibrary() {
+        // --- Filtering ---
+        let displayList = library.filter(song => {
+            if (genreFilter && song.genre !== genreFilter) return false;
+            return true;
+        });
+
+        // --- Sorting Logic ---
+        const { key, direction } = sortConfig;
+
+        displayList.sort((a, b) => {
+            let valA, valB;
+
+            // Primary Sort
+            if (key === 'rating') {
+                valA = a.rating;
+                valB = b.rating;
+            } else { // 'op' or default
+                // Sort by Op first
+                valA = parseFloat(a.opus);
+                valB = parseFloat(b.opus);
+            }
+
+            let comparison = 0;
+            if (valA > valB) comparison = 1;
+            if (valA < valB) comparison = -1;
+
+            if (direction === 'desc') comparison *= -1;
+
+            // Tie Breaking (Always Op -> No)
+            if (comparison === 0) {
+                if (key === 'op') {
+                    // fallthrough
+                } else {
+                    const opA = parseFloat(a.opus);
+                    const opB = parseFloat(b.opus);
+                    if (opA !== opB) return opA - opB;
+                }
+
+                const noA = parseInt(a.number);
+                const noB = parseInt(b.number);
+                return noA - noB;
+            }
+
+            return comparison;
+        });
+
+        // --- Update Header Icons ---
+        document.querySelectorAll('.song-table th').forEach(th => {
+            th.classList.remove('sorted-asc', 'sorted-desc');
+            if (th.dataset.sort === key) {
+                th.classList.add(`sorted-${direction}`);
+            }
+        });
+
+        // --- Rendering ---
+        songListBody.innerHTML = '';
+
+        if (displayList.length === 0) {
+            // If library has items but filter creates empty state
+            if (library.length > 0) {
+                // Wait, we are targeting tbody.
+                // Revert to showing empty row or hiding table?
+                // Let's just append a row saying no results
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="8" class="empty-state">条件に一致する曲はありません。</td>`;
+                songListBody.appendChild(tr);
+                document.querySelector('.song-table').style.display = 'table';
+                emptyState.style.display = 'none';
+                return;
+            }
+
+            emptyState.style.display = 'block';
+            document.querySelector('.song-table').style.display = 'none';
+            return;
+        } else {
+            emptyState.style.display = 'none';
+            document.querySelector('.song-table').style.display = 'table';
+        }
+
+        displayList.forEach(song => {
+            const tr = document.createElement('tr');
+
+            const stars = generateStars(song.rating);
+            const linksHtml = generateLinksHtml(song.youtubeUrls);
+
+            tr.innerHTML = `
+                <td class="col-op">Op.${song.opus}</td>
+                <td class="col-no">No.${song.number}</td>
+                <td class="col-genre">${escapeHtml(song.genre)}</td>
+                <td class="col-title">
+                    <span class="song-title-main">${escapeHtml(song.titleJa)}</span>
+                    <span class="song-title-sub">${escapeHtml(song.titleEn)}</span>
+                </td>
+                <td class="col-rating">${stars}</td>
+                <td class="col-links">${linksHtml}</td>
+                <td class="col-comment">${escapeHtml(song.comment || '')}</td>
+                <td class="col-action">
+                    <button class="btn-icon-row btn-edit-row" data-id="${song.id}">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button class="btn-icon-row btn-delete-row" data-id="${song.id}">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </td>
+            `;
+            songListBody.appendChild(tr);
+        });
+
+        // Attach Event Listeners
+        document.querySelectorAll('.btn-delete-row').forEach(btn => {
+            btn.addEventListener('click', (e) => deleteSongInternal(e.currentTarget.dataset.id));
+        });
+        document.querySelectorAll('.btn-edit-row').forEach(btn => {
+            btn.addEventListener('click', (e) => editSong(e.currentTarget.dataset.id));
+        });
+    }
+
+    // --- Helpers ---
+
+    function generateStars(rating) {
+        // Advanced 0.5 step star rendering
+        let html = '';
+        for (let i = 1; i <= 5; i++) {
+            if (rating >= i) {
+                // Full star
+                html += '<i class="fa-solid fa-star"></i>';
+            } else if (rating === i - 0.5) {
+                // Half star
+                html += '<i class="fa-solid fa-star-half-stroke"></i>';
+            } else {
+                // Empty star
+                html += '<i class="fa-regular fa-star" style="color:#ddd"></i>';
+            }
+        }
+        return html;
+    }
+
+    function generateLinksHtml(urls) {
+        if (!urls || urls.length === 0) return '<span style="color:#555">-</span>';
+        let html = '<div class="yt-links-wrapper">';
+        urls.forEach(url => {
+            const videoId = getYoutubeId(url);
+            if (videoId) {
+                const thumbUrl = `https://img.youtube.com/vi/${videoId}/default.jpg`;
+                html += `
+                    <a href="${url}" target="_blank" class="yt-thumbnail-link" style="background-image: url('${thumbUrl}')">
+                        <span class="yt-icon-overlay"><i class="fa-brands fa-youtube"></i></span>
+                    </a>
+                `;
+            } else {
+                html += `<a href="${url}" target="_blank"><i class="fa-solid fa-link"></i></a>`;
+            }
+        });
+        html += '</div>';
+        return html;
+    }
+
+    function getYoutubeId(url) {
+        if (!url) return null;
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+});

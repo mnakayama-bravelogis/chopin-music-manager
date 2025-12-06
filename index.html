@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chopin Music Manager</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts for Premium Look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap"
+        rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="background-overlay"></div>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fa-solid fa-music"></i>
+                <h1>Frédéric Chopin</h1>
+            </div>
+            <p class="subtitle">Personal Music Collection</p>
+        </header>
+
+        <main>
+            <section class="add-song-section">
+                <h2><i class="fa-solid fa-plus-circle"></i> Add New Piece</h2>
+                <form id="song-form">
+
+                    <!-- Opus and Number Selection -->
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="opus-select">作品番号 (Opus)</label>
+                            <select id="opus-select" required>
+                                <option value="" disabled selected>Select Op.</option>
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label for="no-select">No.</label>
+                            <select id="no-select" disabled>
+                                <option value="" disabled selected>Select No.</option>
+                                <!-- Populated by JS -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Auto-filled Information -->
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="title">曲名 (Title)</label>
+                            <input type="text" id="title" readonly placeholder="Auto-filled..." class="readonly-input">
+                        </div>
+                        <div class="input-group small-group">
+                            <label for="year">作曲年代 (Year)</label>
+                            <input type="text" id="year" readonly placeholder="Year" class="readonly-input">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="input-group">
+                            <label for="genre">種類 (Genre/Type)</label>
+                            <input type="text" id="genre" readonly placeholder="Genre" class="readonly-input">
+                        </div>
+                        <div class="input-group">
+                            <label>おすすめ度 (Rating)</label>
+                            <div class="star-rating-input">
+                                <!-- 5.0 to 0.5 -->
+                                <input type="radio" id="star5.0" name="rating" value="5.0"><label for="star5.0"
+                                    title="5.0"><i class="fa-solid fa-star"></i></label>
+                                <input type="radio" id="star4.5" name="rating" value="4.5"><label for="star4.5"
+                                    title="4.5"><i class="fa-solid fa-star"></i></label>
+                                <input type="radio" id="star4.0" name="rating" value="4.0"><label for="star4.0"
+                                    title="4.0"><i class="fa-solid fa-star"></i></label>
+                                <input type="radio" id="star3.5" name="rating" value="3.5"><label for="star3.5"
+                                    title="3.5"><i class="fa-solid fa-star"></i></label>
+                                <input type="radio" id="star3.0" name="rating" value="3.0"><label for="star3.0"
+                                    title="3.0"><i class="fa-solid fa-star"></i></label>
+                                <input type="radio" id="star2.5" name="rating" value="2.5"><label for="star2.5"
+                                    title="2.5"><i class="fa-solid fa-star"></i></label>
+                                <input type="radio" id="star2.0" name="rating" value="2.0"><label for="star2.0"
+                                    title="2.0"><i class="fa-solid fa-star"></i></label>
+                                <input type="radio" id="star1.5" name="rating" value="1.5"><label for="star1.5"
+                                    title="1.5"><i class="fa-solid fa-star"></i></label>
+                                <input type="radio" id="star1.0" name="rating" value="1.0"><label for="star1.0"
+                                    title="1.0"><i class="fa-solid fa-star"></i></label>
+                                <input type="radio" id="star0.5" name="rating" value="0.5"><label for="star0.5"
+                                    title="0.5"><i class="fa-solid fa-star"></i></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- YouTube Links -->
+                    <div class="input-group" id="youtube-container">
+                        <label>YouTube URLs <button type="button" id="add-youtube-btn" class="btn-icon-small"><i
+                                    class="fa-solid fa-plus"></i></button></label>
+                        <div class="youtube-input-row">
+                            <input type="url" name="youtube[]" placeholder="https://www.youtube.com/watch?v=...">
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="comment">コメント (Comment)</label>
+                        <textarea id="comment" rows="3" placeholder="感想やメモを入力..."></textarea>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button type="submit" id="submit-btn" class="btn-submit">
+                            <i class="fa-solid fa-feather-pointed"></i> <span>登録する</span>
+                        </button>
+                        <button type="button" id="cancel-edit-btn" class="btn-cancel">
+                            キャンセル
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="song-list-section">
+                <div class="list-header">
+                    <h2><i class="fa-solid fa-list-ul"></i> Collection</h2>
+                </div>
+                <!-- Table View for Songs -->
+                <div class="table-responsive">
+                    <table class="song-table">
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-sort="op">Op. <i class="fa-solid fa-sort sort-icon"></i></th>
+                                <th class="sortable" data-sort="no">No.</th>
+                                <th class="col-genre-header">
+                                    <select id="genre-filter" class="genre-filter">
+                                        <option value="">Genres</option>
+                                        <!-- Populated by JS -->
+                                    </select>
+                                </th>
+                                <th class="col-title">Title</th>
+                                <th class="sortable col-rating" data-sort="rating">Rating <i
+                                        class="fa-solid fa-sort sort-icon"></i></th>
+                                <th>Links</th>
+                                <th class="col-comment">Comment</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="song-list-body">
+                            <!-- Items will be injected here by JS -->
+                        </tbody>
+                    </table>
+                    <div id="empty-state" class="empty-state" style="display: none;">
+                        <p>まだ登録された曲はありません。</p>
+                        <p>名曲を追加してコレクションを作りましょう。</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 Chopin Music Manager. All rights reserved. <span
+                    style="opacity: 0.5; font-size: 0.8em;">(v1.0.1)</span></p>
+        </footer>
+    </div>
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
