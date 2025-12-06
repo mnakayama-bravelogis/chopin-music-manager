@@ -544,10 +544,20 @@ textarea:focus {
     color: var(--text-muted);
 }
 
-/* Responsive Fixes */
-@media (max-width: 600px) {
+/* Responsive Card View for Mobile */
+@media (max-width: 768px) {
     .container {
         padding: 0.5rem;
+    }
+
+    /* Stack Header Elements */
+    .header-top {
+        position: static !important;
+        justify-content: center !important;
+        margin-bottom: 0.5rem;
+        background: rgba(0, 0, 0, 0.2);
+        padding: 0.5rem;
+        border-radius: 8px;
     }
 
     h1 {
@@ -563,26 +573,114 @@ textarea:focus {
         flex: auto;
     }
 
-    /* ... existing css ... */
-    /* On very small screens, maybe stack content? 
-       For now, horizontal scroll is cleaner for tables. */
+    /* Force Table to behave like a list of cards */
+    .song-table,
+    .song-table tbody,
+    .song-table tr,
+    .song-table td {
+        display: block;
+        width: 100%;
+    }
+
+    /* Hide Header */
+    .song-table thead {
+        display: none;
+    }
+
+    /* Card Style for Row */
+    .song-table tr {
+        background: rgba(255, 255, 255, 0.9);
+        margin-bottom: 1rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        padding: 1rem;
+        position: relative;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .song-table td {
+        padding: 0.3rem 0;
+        border: none;
+        background: transparent !important;
+        /* Override hover effects */
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Specific Cell Styling */
+
+    /* Title: Big and Top */
+    .col-title {
+        font-size: 1.1rem;
+        border-bottom: 1px solid #eee !important;
+        padding-bottom: 0.5rem !important;
+        margin-bottom: 0.5rem;
+    }
+
+    .song-title-main {
+        font-size: 1.2rem;
+        color: var(--color-5);
+    }
+
+    /* Meta Info Row (Op, No, Genre, Year) */
+    .col-op,
+    .col-no,
+    .col-genre {
+        display: inline-block;
+        width: auto;
+        font-size: 0.9rem;
+        color: #666;
+        padding: 0 !important;
+        margin-right: 0.8rem;
+    }
+
+    .col-op::before {
+        content: 'Op.';
+        font-weight: bold;
+        color: #888;
+        margin-right: 2px;
+    }
+
+    .col-no::before {
+        content: 'No.';
+        font-weight: bold;
+        color: #888;
+        margin-right: 2px;
+    }
+
+    /* Comment */
+    .col-comment {
+        font-style: italic;
+        background: #f9f9f9 !important;
+        padding: 0.5rem !important;
+        border-radius: 6px;
+        margin-top: 0.5rem;
+    }
+
+    /* Action Buttons (Floating or Bottom) */
+    .col-action {
+        justify-content: flex-end;
+        margin-top: 0.5rem;
+        padding-top: 0.5rem !important;
+        border-top: 1px solid #eee !important;
+    }
+
+    .btn-icon-row {
+        padding: 8px 12px;
+        font-size: 1rem;
+    }
 }
 
-/* Auth Overlay Styles */
-.auth-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    /* More transparent to show background */
-    background: rgba(45, 78, 124, 0.4);
-    /* Reduced blur */
-    backdrop-filter: blur(4px);
-    z-index: 1000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* More transparent to show background */
+background: rgba(45, 78, 124, 0.4);
+/* Reduced blur */
+backdrop-filter: blur(4px);
+z-index: 1000;
+display: flex;
+justify-content: center;
+align-items: center;
 }
 
 .auth-box {
