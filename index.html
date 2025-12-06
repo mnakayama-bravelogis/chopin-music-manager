@@ -25,7 +25,7 @@
         <div class="auth-box">
             <div class="logo">
                 <i class="fa-solid fa-music"></i>
-                <h2>Chopin Manager</h2>
+                <h2>Chopin Music Manager</h2>
             </div>
             <p style="text-align:center; margin-bottom:1.5rem; color:#555;">Sign in to access your collection</p>
 
@@ -41,6 +41,25 @@
                 <button type="submit" class="btn-submit" id="login-btn">
                     <span>Sign In / Sign Up</span>
                 </button>
+
+                <div class="auth-separator">
+                    <span>OR</span>
+                </div>
+
+                <div class="social-login">
+                    <button type="button" class="btn-social btn-google" id="google-login-btn">
+                        <i class="fa-brands fa-google"></i> Continue with Google
+                    </button>
+                    <button type="button" class="btn-social btn-apple" id="apple-login-btn">
+                        <i class="fa-brands fa-apple"></i> Continue with Apple
+                    </button>
+                </div>
+
+                <div style="text-align:center; margin-top:1rem;">
+                    <a href="#" id="forgot-password-link" style="color:var(--color-5); font-size:0.9rem;">Forgot
+                        Password?</a>
+                </div>
+
                 <p id="auth-message" style="color:red; text-align:center; margin-top:1rem; font-size:0.9rem;"></p>
                 <p style="text-align:center; margin-top:1rem; font-size:0.85rem; color:#666;">
                     (If no account exists, one will be created automatically)

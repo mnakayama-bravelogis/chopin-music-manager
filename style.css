@@ -638,7 +638,71 @@ textarea:focus {
 .auth-box .btn-submit {
     padding: 1.2rem;
     font-size: 1.2rem;
-    margin-top: 1.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* Social Login */
+.auth-separator {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #888;
+    margin: 1.5rem 0;
+    font-size: 0.9rem;
+}
+
+.auth-separator::before,
+.auth-separator::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #ddd;
+}
+
+.auth-separator span {
+    padding: 0 10px;
+}
+
+.btn-social {
+    width: 100%;
+    padding: 0.8rem;
+    margin-bottom: 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.8rem;
+    background: #fff;
+    color: #333;
+    transition: background 0.2s;
+}
+
+.btn-social:hover {
+    background: #f5f5f5;
+}
+
+.btn-google {
+    color: #4285F4;
+    border-color: #4285F4;
+}
+
+.btn-google:hover {
+    background: #4285F4;
+    color: #fff;
+}
+
+.btn-apple {
+    color: #000;
+    border-color: #000;
+}
+
+.btn-apple:hover {
+    background: #000;
+    color: #fff;
 }
 
 /* Migration Banner */

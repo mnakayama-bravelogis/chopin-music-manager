@@ -47,6 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
     loginForm.addEventListener('submit', handleLogin);
     logoutBtn.addEventListener('click', handleLogout);
 
+    // Social & Reset Listeners
+    document.getElementById('google-login-btn').addEventListener('click', () => handleSocialLogin('google'));
+    document.getElementById('apple-login-btn').addEventListener('click', () => handleSocialLogin('apple'));
+    document.getElementById('forgot-password-link').addEventListener('click', handlePasswordReset);
+
     // --- App Listeners ---
     addYoutubeBtn.addEventListener('click', () => addYoutubeInput(''));
     opusSelect.addEventListener('change', handleOpusChange);
@@ -108,6 +113,43 @@ document.addEventListener('DOMContentLoaded', () => {
             authOverlay.style.display = 'flex';
             appContainer.style.display = 'none';
             library = [];
+        }
+    }
+
+    async function handleSocialLogin(provider) {
+        authMessage.textContent = `Redirecting to ${provider}...`;
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: provider,
+            options: {
+                redirectTo: window.location.href // Redirect back to this page
+            }
+        });
+        if (error) {
+            authMessage.style.color = 'red';
+            authMessage.textContent = error.message;
+        }
+    }
+
+    async function handlePasswordReset(e) {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        if (!email) {
+            authMessage.style.color = 'orange';
+            authMessage.textContent = 'Please enter your email above to reset password.';
+            return;
+        }
+
+        authMessage.textContent = 'Sending reset link...';
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.href,
+        });
+
+        if (error) {
+            authMessage.style.color = 'red';
+            authMessage.textContent = error.message;
+        } else {
+            authMessage.style.color = 'green';
+            authMessage.textContent = 'Password reset link sent to your email!';
         }
     }
 
