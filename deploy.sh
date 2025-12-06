@@ -15,12 +15,11 @@ fi
 if [ ! -d ".git" ]; then
     echo "🔰 初回セットアップを開始します..."
     
-    # git initを実行してみて、失敗したらエラーを表示して止まる
     if ! git init; then
         echo ""
         echo "❌ エラー: Gitの初期化に失敗しました。"
-        echo "⚠️ 画面に『コマンドラインデベッパーツールのインストール』というポップアップが出ていませんか？"
-        echo "もし出ていたら【インストール】をクリックして、完了してからもう一度このコマンドを実行してください。"
+        echo "⚠️ 画面に『コマンドラインデベッパーツールのインストール』等のポップアップが出ていませんか？"
+        echo "インストールが完了してからもう一度実行してください。"
         exit 1
     fi
 
@@ -37,8 +36,10 @@ if [ ! -d ".git" ]; then
         exit 1
     fi
     
+    # 既存のリモートがあれば削除して再登録（安全策）
+    git remote remove origin 2>/dev/null || true
     if ! git remote add origin "$REPO_URL"; then
-         echo "⚠️ リモート登録に失敗しました（すでに登録済みの可能性があります）"
+         echo "⚠️ リモート登録に失敗しました"
     fi
     
     echo "✅ リポジトリを登録しました！"
@@ -48,15 +49,18 @@ fi
 echo "🚀 GitHubへアップロード中..."
 
 git add .
-git commit -m "Update via deploy script: $(date)" || echo "⚠️ 変更がないためコミットスキップ" # 変更なしでもエラーにしない
+git commit -m "Update via deploy script: $(date)" || echo "⚠️ 変更がないためコミットスキップ"
 
-# プッシュに失敗した場合のハンドリング
-if ! git push -u origin main; then
+# 【重要変更】 -f (force) オプションを追加
+# これにより、GitHub上の古い履歴があっても、手元のPCの内容で強制的に上書きします。
+# 個人開発ではこれが最も手っ取り早い解決策です。
+if ! git push -f -u origin main; then
     echo ""
     echo "❌ アップロードに失敗しました。"
     echo "考えられる原因:"
     echo "1. GitHubとの認証が切れている（ブラウザでログインが必要かも）"
     echo "2. URLが間違っている"
+    echo "3. 入力したトークンやパスワードが間違っている"
     exit 1
 fi
 
