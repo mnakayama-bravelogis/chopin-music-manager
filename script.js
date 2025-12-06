@@ -531,26 +531,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Mobile Comment Toggle Logic
         window.toggleComment = function (btn) {
-            // Find the comment wrapper in the same container
-            const container = btn.closest('.mobile-footer').nextElementSibling; // content wrapper is next sibling of footer? No, structure changed.
-
-            // Let's rely on ID or structure.
-            // Structure: 
-            // <div class="mobile-comment-content" id="comment-${song.id}" style="display:none">...</div>
-            // <div class="mobile-footer"> <button onclick="toggle..."> ... </div>
-
-            // Let's pass the ID
+            // New Logic: ID based (data-comment-id)
             const id = btn.dataset.commentId;
             const content = document.getElementById(id);
 
-            if (content.style.display === 'none') {
+            // Toggle Icon and Display
+            if (content.style.display === 'none' || content.style.display === '') {
                 content.style.display = 'block';
-                btn.innerHTML = '<i class="fa-solid fa-chevron-up"></i>';
-                btn.classList.add('active');
+                // Active Style (Solid Blue)
+                btn.style.background = '#4f83b0';
+                btn.style.color = '#fff';
+                btn.style.borderColor = '#4f83b0';
             } else {
                 content.style.display = 'none';
-                btn.innerHTML = '<i class="fa-regular fa-comment-dots"></i>';
-                btn.classList.remove('active');
+                // Inactive Style (White)
+                btn.style.background = 'white';
+                btn.style.color = '#4f83b0';
+                btn.style.borderColor = '#eee';
             }
         };
 
@@ -576,24 +573,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Mobile Footer: [Comment Icon (Left)] [Edit] [Delete (Right)]
             const mobileFooterHtml = `
-            <div class="mobile-footer mobile-only">
-                <div class="mobile-footer-left">
+            <!-- Mobile Footer (Renamed to break cache) -->
+            <div class="mobile-card-footer mobile-only" style="display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: center !important; width: 100% !important; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;">
+                
+                <!-- Left: Comment Toggle -->
+                <div class="mobile-footer-left" style="flex: 1;">
                     ${song.comment ? `
-                    <button class="comment-toggle-btn" data-comment-id="comment-${song.id}" onclick="toggleComment(this)">
+                    <button class="comment-toggle-btn" data-comment-id="comment-${song.id}" onclick="toggleComment(this)" style="display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 50%; border: 1px solid #eee; background: white; color: #4f83b0;">
                         <i class="fa-regular fa-comment-dots"></i>
                     </button>
-                    ` : '<span style="font-size:0.8rem; color:#ccc; padding:0.5rem;">No Comment</span>'}
+                    ` : '<span style="font-size:0.8rem; color:#ccc;">No Comment</span>'}
                 </div>
-                <div class="mobile-footer-right" style="display: flex; gap: 10px; align-items: center;">
-                    <button class="btn-icon-row btn-edit-row-mobile" data-id="${song.id}">
+
+                <!-- Right: Edit/Delete Buttons (Forced Horizontal) -->
+                <div class="mobile-footer-right" style="display: flex !important; flex-direction: row !important; gap: 12px !important; align-items: center !important;">
+                    <button class="btn-icon-row btn-edit-row-mobile" data-id="${song.id}" style="padding: 8px 12px;">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </button>
-                    <button class="btn-icon-row btn-delete-row-mobile" data-id="${song.id}">
+                    <button class="btn-icon-row btn-delete-row-mobile" data-id="${song.id}" style="padding: 8px 12px;">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
             </div>
-            <div id="comment-${song.id}" class="mobile-comment-content" style="display:none;">
+
+            <!-- Comment Box (Renamed & Hidden by default) -->
+            <div id="comment-${song.id}" class="mobile-comment-box" style="display:none !important; margin-top: 10px; background: #f8fbff; padding: 10px; border-radius: 8px; border: 1px solid #eee; font-size: 0.8rem; color: #444;">
                 ${escapeHtml(song.comment)}
             </div>
         `;
@@ -608,10 +612,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
                 <td class="col-rating">${stars}</td>
                 <td class="col-links">${linksHtml}</td>
-                <!-- Desktop Comment (Hidden on Mobile) -->
-                <td class="col-comment desktop-only">${escapeHtml(song.comment || '')}</td>
                 
-                <!-- Desktop Actions (Hidden on Mobile) -->
+                <!-- Desktop Columns -->
+                <td class="col-comment desktop-only">${escapeHtml(song.comment || '')}</td>
                 <td class="col-action desktop-only">
                     <button class="btn-icon-row btn-edit-row" data-id="${song.id}">
                         <i class="fa-solid fa-pen-to-square"></i>
@@ -621,8 +624,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </button>
                 </td>
                 
-                <!-- Mobile Container (Contains Footer & Comment Content) -->
-                <td class="col-mobile-wrapper mobile-only" style="padding:0; border:none;">
+                <!-- Mobile Only Container -->
+                <td class="col-mobile-wrapper mobile-only" style="padding:0; border:none; display: block !important;">
                     ${mobileFooterHtml}
                 </td>
             `;
