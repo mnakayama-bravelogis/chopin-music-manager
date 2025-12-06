@@ -655,92 +655,101 @@ textarea:focus {
     .col-op::before {
         content: 'Op.';
         font-weight: bold;
-        color: #888;
-        margin-right: 2px;
+        content: '';
+        margin-right: 0;
     }
 
     .col-no::before {
-        content: 'No.';
-        font-weight: bold;
-        color: #888;
-        margin-right: 2px;
+        content: '';
+        margin-right: 0;
     }
 
-    /* Comment */
-    .col-comment {
+    /* Mobile Footer & Wrapper */
+    .col-mobile-wrapper {
+        display: block !important;
+        /* Force block */
         margin-top: 0.5rem;
-    }
-
-    .comment-content-wrapper {
-        font-size: 0.85rem;
-        /* Unified small size */
-        color: #555;
-        background: #f9f9f9;
-        padding: 0.8rem;
-        border-radius: 8px;
-        line-height: 1.5;
-        word-wrap: break-word;
-        /* Prevent overflow */
-        word-break: break-all;
-    }
-
-    /* Toggle Button (Hidden on Desktop by default logic in JS/CSS?)
-       Actually let's control visibility via .mobile-only class in JS or here.
-    */
-    .comment-toggle-btn {
-        background: none;
-        border: none;
-        color: var(--color-4);
-        font-size: 1.2rem;
-        cursor: pointer;
-        padding: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .col-action {
-        display: flex !important;
-        justify-content: flex-end;
-        border-top: 1px solid #eee !important;
-        margin-top: 0.5rem;
+        border-top: 1px solid #f0f0f0;
         padding-top: 0.5rem !important;
     }
 
-    /* Mobile/Desktop Visibility Logic */
+    .mobile-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .mobile-footer-left {
+        flex: 1;
+    }
+
+    .mobile-footer-right {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .comment-toggle-btn {
+        background: none;
+        border: 1px solid #eee;
+        border-radius: 50%;
+        color: var(--color-4);
+        font-size: 1.1rem;
+        cursor: pointer;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+    .comment-toggle-btn.active {
+        background: var(--color-4);
+        color: #fff;
+        border-color: var(--color-4);
+    }
+
+    .mobile-comment-content {
+        margin-top: 0.5rem;
+        background: #f8fbff;
+        padding: 0.8rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        color: #444;
+        line-height: 1.6;
+    }
+
+    /* Hide Desktop columns */
+    .desktop-only {
+        display: none !important;
+    }
+
     .mobile-only {
         display: flex !important;
     }
 
-    .desktop-comment-view {
-        display: none !important;
-    }
-
-    /* Mobile Hidden is handled by inline style for logic, but we can set default */
-    .mobile-hidden {
-        display: none;
+    /* Ensure action buttons are visible and clickable */
+    .btn-edit-row-mobile,
+    .btn-delete-row-mobile {
+        padding: 8px 12px;
+        font-size: 1rem;
+        /* Ensure z-index is fine */
+        position: relative;
+        z-index: 5;
     }
 }
 
 /* Default (Desktop) Styles for visibility */
 .mobile-only {
-    display: none;
+    display: none !important;
 }
 
-.desktop-comment-view {
-    display: block;
+.desktop-only {
+    display: table-cell !important;
 }
 
-.comment-content-wrapper {
-    display: none;
-}
-
-/* On desktop we use simple view, or wrapper if shared? */
-
-/* Actually, let's keep it simple: 
-   Desktop: shows .desktop-comment-view
-   Mobile: shows .comment-toggle-btn AND .comment-content-wrapper (when toggled)
-*/
+/* Note: col-mobile-wrapper is td, so table-cell default, but we hide it via mobile-only class */
 
 /* More transparent to show background */
 background: rgba(45, 78, 124, 0.4);

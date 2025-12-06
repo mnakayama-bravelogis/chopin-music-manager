@@ -531,13 +531,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Mobile Comment Toggle Logic
         window.toggleComment = function (btn) {
-            const content = btn.nextElementSibling;
+            // Find the comment wrapper in the same container
+            const container = btn.closest('.mobile-footer').nextElementSibling; // content wrapper is next sibling of footer? No, structure changed.
+
+            // Let's rely on ID or structure.
+            // Structure: 
+            // <div class="mobile-comment-content" id="comment-${song.id}" style="display:none">...</div>
+            // <div class="mobile-footer"> <button onclick="toggle..."> ... </div>
+
+            // Let's pass the ID
+            const id = btn.dataset.commentId;
+            const content = document.getElementById(id);
+
             if (content.style.display === 'none') {
                 content.style.display = 'block';
-                btn.innerHTML = '<i class="fa-solid fa-chevron-up"></i> Close Comment';
+                btn.innerHTML = '<i class="fa-solid fa-chevron-up"></i>';
+                btn.classList.add('active');
             } else {
                 content.style.display = 'none';
-                btn.innerHTML = '<i class="fa-regular fa-comment-dots"></i> Show Comment';
+                btn.innerHTML = '<i class="fa-regular fa-comment-dots"></i>';
+                btn.classList.remove('active');
             }
         };
 
@@ -547,28 +560,47 @@ document.addEventListener('DOMContentLoaded', () => {
             const stars = generateStars(song.rating);
             const linksHtml = generateLinksHtml(song.youtubeUrls);
 
-            // Check window width for initial state or just use CSS media query logic?
-            // Using inline style for display none on mobile is tricky if we want desktop to show it.
-            // Better: standard class based approach.
+            // Smart Number Logic
+            let displayNo = `No.${song.number}`;
+            // Check works definition
+            if (window.chopinWorks) {
+                const worksInOp = window.chopinWorks.filter(w => w.op === song.opus);
+                if (worksInOp.length === 1) {
+                    displayNo = '-';
+                }
+            }
 
-            const commentHtml = song.comment ? `
-            <div class="mobile-comment-container">
-                <button class="comment-toggle-btn mobile-only" onclick="toggleComment(this)">
-                    <i class="fa-regular fa-comment-dots"></i> Show Comment
-                </button>
-                <div class="comment-content-wrapper mobile-hidden" style="display:none;">
-                    ${escapeHtml(song.comment)}
+            // Comment & Mobile Layout
+            // We will create a Mobile-Only Footer row inside a cell, 
+            // or effectively restructure the visual using CSS on these elements.
+
+            // Mobile Footer: [Comment Icon (Left)] [Edit] [Delete (Right)]
+            const mobileFooterHtml = `
+            <div class="mobile-footer mobile-only">
+                <div class="mobile-footer-left">
+                    ${song.comment ? `
+                    <button class="comment-toggle-btn" data-comment-id="comment-${song.id}" onclick="toggleComment(this)">
+                        <i class="fa-regular fa-comment-dots"></i>
+                    </button>
+                    ` : '<span style="font-size:0.8rem; color:#ccc; padding:0.5rem;">No Comment</span>'}
                 </div>
-                <!-- Desktop View (simple text) - controlled by CSS media query? -->
-                <div class="desktop-comment-view">
-                    ${escapeHtml(song.comment)}
+                <div class="mobile-footer-right">
+                    <button class="btn-icon-row btn-edit-row-mobile" data-id="${song.id}">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button class="btn-icon-row btn-delete-row-mobile" data-id="${song.id}">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
                 </div>
             </div>
-        ` : '<span style="color:#ccc; font-size:0.8rem;">No comment</span>';
+            <div id="comment-${song.id}" class="mobile-comment-content mobile-only" style="display:none;">
+                ${escapeHtml(song.comment)}
+            </div>
+        `;
 
             tr.innerHTML = `
                 <td class="col-op">Op.${song.opus}</td>
-                <td class="col-no">No.${song.number}</td>
+                <td class="col-no">${displayNo}</td>
                 <td class="col-genre">${escapeHtml(song.genre)}</td>
                 <td class="col-title">
                     <span class="song-title-main">${escapeHtml(song.titleJa)}</span>
@@ -576,8 +608,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
                 <td class="col-rating">${stars}</td>
                 <td class="col-links">${linksHtml}</td>
-                <td class="col-comment">${commentHtml}</td>
-                <td class="col-action">
+                <!-- Desktop Comment (Hidden on Mobile) -->
+                <td class="col-comment desktop-only">${escapeHtml(song.comment || '')}</td>
+                
+                <!-- Desktop Actions (Hidden on Mobile) -->
+                <td class="col-action desktop-only">
                     <button class="btn-icon-row btn-edit-row" data-id="${song.id}">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </button>
@@ -585,11 +620,27 @@ document.addEventListener('DOMContentLoaded', () => {
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </td>
+                
+                <!-- Mobile Container (Contains Footer & Comment Content) -->
+                <td class="col-mobile-wrapper mobile-only" style="padding:0; border:none;">
+                    ${mobileFooterHtml}
+                </td>
             `;
             songListBody.appendChild(tr);
         });
-    }
 
+        // Attach Event Listeners (Desktop & Mobile)
+
+        // Delete
+        const deleteHandler = (e) => deleteSongInternal(e.currentTarget.dataset.id);
+        document.querySelectorAll('.btn-delete-row').forEach(btn => btn.addEventListener('click', deleteHandler));
+        document.querySelectorAll('.btn-delete-row-mobile').forEach(btn => btn.addEventListener('click', deleteHandler));
+
+        // Edit
+        const editHandler = (e) => editSong(e.currentTarget.dataset.id);
+        document.querySelectorAll('.btn-edit-row').forEach(btn => btn.addEventListener('click', editHandler));
+        document.querySelectorAll('.btn-edit-row-mobile').forEach(btn => btn.addEventListener('click', editHandler));
+    }
     // Expose helpers globally for onclick handlers
     window.editSong = editSong;
 
