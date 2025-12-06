@@ -116,34 +116,50 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
+        authMessage.style.color = '#555';
         authMessage.textContent = 'Connecting...';
         loginBtn.disabled = true;
 
-        // Try Login
-        let { error } = await supabase.auth.signInWithPassword({ email, password });
+        // 1. Try Login
+        let { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
         if (error) {
-            // If login failed, try Sign Up (auto-creation logic for better UX)
+            console.log('Login Error:', error.message);
+            // 2. If login failed, check if it's because user doesn't exist
             if (error.message.includes('Invalid login credentials')) {
-                // Could act as signup... checking flow.
-                // Normally better to have separate, but for this personal app:
-                const { error: signUpError } = await supabase.auth.signUp({ email, password });
+                // Try Sign Up
+                authMessage.textContent = 'Create new account...';
+                const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
+
                 if (signUpError) {
-                    authMessage.textContent = signUpError.message;
+                    // Sign up failed (maybe user exists but wrong password?)
+                    authMessage.style.color = 'red';
+                    authMessage.textContent = 'Login Failed: ' + signUpError.message;
                     loginBtn.disabled = false;
                 } else {
-                    authMessage.textContent = 'Account created! Logging in...';
-                    // Auto login usually happens? Or need confirmation if email confirm on.
-                    // Assuming default Supabase (confirm email might be required).
-                    // If confirm required, tell user.
-                    authMessage.textContent = 'Check your email for confirmation link!';
+                    // Sign up succeeded
+                    if (signUpData.session) {
+                        // Auto logged in (Email confirm disabled)
+                        authMessage.textContent = 'Welcome!';
+                    } else {
+                        // Email confirm required
+                        authMessage.style.color = 'green';
+                        authMessage.style.fontWeight = 'bold';
+                        authMessage.innerHTML = '<i class="fa-solid fa-envelope"></i> Confirmation email sent!<br>Please check your inbox.';
+                        loginBtn.disabled = false;
+                        loginBtn.querySelector('span').textContent = 'Check Email & Retry';
+                    }
                 }
+            } else if (error.message.includes('Email not confirmed')) {
+                authMessage.style.color = 'orange';
+                authMessage.textContent = 'Please confirm your email address first.';
+                loginBtn.disabled = false;
             } else {
+                authMessage.style.color = 'red';
                 authMessage.textContent = error.message;
                 loginBtn.disabled = false;
             }
         }
-        // Success handled by onAuthStateChange
     }
 
     async function handleLogout() {

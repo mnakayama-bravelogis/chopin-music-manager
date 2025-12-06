@@ -575,8 +575,10 @@ textarea:focus {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(45, 78, 124, 0.9);
-    backdrop-filter: blur(8px);
+    /* More transparent to show background */
+    background: rgba(45, 78, 124, 0.4);
+    /* Reduced blur */
+    backdrop-filter: blur(4px);
     z-index: 1000;
     display: flex;
     justify-content: center;
@@ -584,25 +586,57 @@ textarea:focus {
 }
 
 .auth-box {
-    background: white;
-    padding: 2.5rem;
-    border-radius: 16px;
+    /* Glassmorphism for the box itself */
+    background: rgba(255, 255, 255, 0.9);
+    padding: 3rem 2.5rem;
+    /* More vertical padding */
+    border-radius: 20px;
     width: 90%;
-    max-width: 400px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    max-width: 420px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
 }
 
 .auth-box .logo {
-    margin-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .auth-box h2 {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     color: var(--color-5);
     border: none;
     margin: 0;
     padding: 0;
     font-family: var(--font-heading);
+}
+
+/* Auth Inputs specific style */
+.auth-box input {
+    padding: 1.2rem 1rem;
+    /* Taller input */
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    background: #f8fbff;
+    border: 2px solid #e0e7ff;
+}
+
+.auth-box input:focus {
+    background: #fff;
+    border-color: var(--color-4);
+}
+
+.auth-box label {
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: var(--color-5);
+    margin-bottom: 0.5rem;
+}
+
+.auth-box .btn-submit {
+    padding: 1.2rem;
+    font-size: 1.2rem;
+    margin-top: 1.5rem;
 }
 
 /* Migration Banner */
