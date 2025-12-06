@@ -529,10 +529,43 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('.song-table').style.display = 'table';
         }
 
+        // Mobile Comment Toggle Logic
+        window.toggleComment = function (btn) {
+            const content = btn.nextElementSibling;
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                btn.innerHTML = '<i class="fa-solid fa-chevron-up"></i> Close Comment';
+            } else {
+                content.style.display = 'none';
+                btn.innerHTML = '<i class="fa-regular fa-comment-dots"></i> Show Comment';
+            }
+        };
+
         displayList.forEach(song => {
             const tr = document.createElement('tr');
+
             const stars = generateStars(song.rating);
             const linksHtml = generateLinksHtml(song.youtubeUrls);
+
+            // Check window width for initial state or just use CSS media query logic?
+            // Using inline style for display none on mobile is tricky if we want desktop to show it.
+            // Better: standard class based approach.
+
+            const commentHtml = song.comment ? `
+            <div class="mobile-comment-container">
+                <button class="comment-toggle-btn mobile-only" onclick="toggleComment(this)">
+                    <i class="fa-regular fa-comment-dots"></i> Show Comment
+                </button>
+                <div class="comment-content-wrapper mobile-hidden" style="display:none;">
+                    ${escapeHtml(song.comment)}
+                </div>
+                <!-- Desktop View (simple text) - controlled by CSS media query? -->
+                <div class="desktop-comment-view">
+                    ${escapeHtml(song.comment)}
+                </div>
+            </div>
+        ` : '<span style="color:#ccc; font-size:0.8rem;">No comment</span>';
+
             tr.innerHTML = `
                 <td class="col-op">Op.${song.opus}</td>
                 <td class="col-no">No.${song.number}</td>
@@ -543,12 +576,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
                 <td class="col-rating">${stars}</td>
                 <td class="col-links">${linksHtml}</td>
-                <td class="col-comment">${escapeHtml(song.comment || '')}</td>
+                <td class="col-comment">${commentHtml}</td>
                 <td class="col-action">
-                    <button class="btn-icon-row btn-edit-row" onclick="window.editSong('${song.id}')">
+                    <button class="btn-icon-row btn-edit-row" data-id="${song.id}">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </button>
-                    <button class="btn-icon-row btn-delete-row" onclick="window.deleteSongInternal('${song.id}')">
+                    <button class="btn-icon-row btn-delete-row" data-id="${song.id}">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </td>
