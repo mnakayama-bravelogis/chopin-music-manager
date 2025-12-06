@@ -584,7 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </button>
                     ` : '<span style="font-size:0.8rem; color:#ccc; padding:0.5rem;">No Comment</span>'}
                 </div>
-                <div class="mobile-footer-right">
+                <div class="mobile-footer-right" style="display: flex; gap: 10px; align-items: center;">
                     <button class="btn-icon-row btn-edit-row-mobile" data-id="${song.id}">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </button>
@@ -593,7 +593,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </button>
                 </div>
             </div>
-            <div id="comment-${song.id}" class="mobile-comment-content" style="display:none !important;">
+            <div id="comment-${song.id}" class="mobile-comment-content" style="display:none;">
                 ${escapeHtml(song.comment)}
             </div>
         `;
