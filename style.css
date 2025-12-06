@@ -623,17 +623,19 @@ textarea:focus {
     .song-title-main {
         display: block;
         /* Force new line */
-        font-size: 1.1rem;
-        /* Slightly smaller Japanese font */
+        font-size: 0.95rem;
+        /* Reduced from 1.1rem to 0.95rem */
         color: var(--color-5);
-        line-height: 1.3;
+        line-height: 1.4;
         margin-bottom: 2px;
+        font-weight: 700;
     }
 
     .song-title-sub {
         display: block;
         /* Force new line */
-        font-size: 0.85rem;
+        font-size: 0.75rem;
+        /* Reduced from 0.85rem */
         color: #777;
     }
 
@@ -648,15 +650,14 @@ textarea:focus {
     .col-genre {
         display: inline-block !important;
         width: auto !important;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
+        /* Slightly smaller */
         color: #666;
-        margin-right: 0.8rem;
+        margin-right: 0.3rem;
         vertical-align: middle;
     }
 
     .col-op::before {
-        content: 'Op.';
-        font-weight: bold;
         content: '';
         margin-right: 0;
     }
@@ -678,17 +679,22 @@ textarea:focus {
     .mobile-footer {
         display: flex;
         justify-content: space-between;
+        /* Ensures separation */
         align-items: center;
         width: 100%;
     }
 
     .mobile-footer-left {
-        flex: 1;
+        /* Comment Icon Alignment */
+        display: flex;
+        justify-content: flex-start;
     }
 
     .mobile-footer-right {
         display: flex;
-        gap: 0.5rem;
+        gap: 0.8rem;
+        /* Better spacing for buttons */
+        justify-content: flex-end;
     }
 
     .comment-toggle-btn {
@@ -696,10 +702,11 @@ textarea:focus {
         border: 1px solid #eee;
         border-radius: 50%;
         color: var(--color-4);
-        font-size: 1.1rem;
+        font-size: 1rem;
         cursor: pointer;
-        width: 36px;
-        height: 36px;
+        width: 32px;
+        /* Smaller button */
+        height: 32px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -715,11 +722,13 @@ textarea:focus {
     .mobile-comment-content {
         margin-top: 0.5rem;
         background: #f8fbff;
-        padding: 0.8rem;
+        padding: 0.6rem;
         border-radius: 8px;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
+        /* Smaller than Op/Genre (0.85rem) */
         color: #444;
-        line-height: 1.6;
+        line-height: 1.5;
+        border: 1px solid #eee;
     }
 
     /* Hide Desktop columns */
@@ -734,8 +743,8 @@ textarea:focus {
     /* Ensure action buttons are visible and clickable */
     .btn-edit-row-mobile,
     .btn-delete-row-mobile {
-        padding: 8px 12px;
-        font-size: 1rem;
+        padding: 6px 10px;
+        font-size: 0.9rem;
         position: relative;
         z-index: 5;
     }
