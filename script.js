@@ -593,7 +593,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </button>
                 </div>
             </div>
-            <div id="comment-${song.id}" class="mobile-comment-content mobile-only" style="display:none !important;">
+            <div id="comment-${song.id}" class="mobile-comment-content" style="display:none !important;">
                 ${escapeHtml(song.comment)}
             </div>
         `;

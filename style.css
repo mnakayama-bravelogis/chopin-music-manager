@@ -725,10 +725,11 @@ textarea:focus {
         padding: 0.6rem;
         border-radius: 8px;
         font-size: 0.8rem;
-        /* Smaller than Op/Genre (0.85rem) */
         color: #444;
         line-height: 1.5;
         border: 1px solid #eee;
+        display: none;
+        /* Default hidden state managed by JS, but base is block when visible */
     }
 
     /* Hide Desktop columns */
@@ -755,6 +756,11 @@ textarea:focus {
     display: none !important;
 }
 
+.mobile-comment-content {
+    display: none !important;
+}
+
+/* Always hide this on desktop */
 .desktop-only {
     display: table-cell !important;
 }
