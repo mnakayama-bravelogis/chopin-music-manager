@@ -19,8 +19,47 @@
 
 <body>
     <div class="background-overlay"></div>
-    <div class="container">
+
+    <!-- Auth Overlay (Login Screen) -->
+    <div id="auth-overlay" class="auth-overlay">
+        <div class="auth-box">
+            <div class="logo">
+                <i class="fa-solid fa-music"></i>
+                <h2>Chopin Manager</h2>
+            </div>
+            <p style="text-align:center; margin-bottom:1.5rem; color:#555;">Sign in to access your collection</p>
+
+            <form id="login-form">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="email" required placeholder="example@email.com">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="password" required placeholder="********" minlength="6">
+                </div>
+                <button type="submit" class="btn-submit" id="login-btn">
+                    <span>Sign In / Sign Up</span>
+                </button>
+                <p id="auth-message" style="color:red; text-align:center; margin-top:1rem; font-size:0.9rem;"></p>
+                <p style="text-align:center; margin-top:1rem; font-size:0.85rem; color:#666;">
+                    (If no account exists, one will be created automatically)
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <div class="container" id="app-container" style="display:none;">
         <header>
+            <div class="header-top"
+                style="display:flex; justify-content:flex-end; gap:1rem; align-items:center; position:absolute; top:0; right:0; padding:1rem;">
+                <span id="user-email"
+                    style="font-size:0.8rem; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.5);"></span>
+                <button id="logout-btn" class="btn-icon-small"
+                    style="background:rgba(255,255,255,0.2); color:#fff; border:none;">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
             <div class="logo">
                 <i class="fa-solid fa-music"></i>
                 <h1>Frédéric Chopin</h1>
@@ -164,6 +203,9 @@
         </footer>
     </div>
     <script src="data.js"></script>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase_client.js"></script>
     <script src="script.js"></script>
 </body>
 
