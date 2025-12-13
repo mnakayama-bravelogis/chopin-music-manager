@@ -1,6 +1,6 @@
 // Data is loaded from data.js via script tag (window.chopinWorks)
 
-// version 2.0.1
+// version 2.1.0
 // Fail-safe: Inject critical mobile styles directly to bypass CSS caching issues
 (function injectMobileStyles() {
     const style = document.createElement('style');
@@ -307,6 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Map back to app format (camelCase)
         library = data.map(row => ({
             id: row.id,
+            userId: row.user_id, // Added for ownership check
             opus: row.opus,
             number: row.number,
             titleJa: row.title_ja,
@@ -589,12 +590,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     displayNo = '-';
                 }
             }
+            // Ownership Check
+            const isOwner = (currentUser && song.userId === currentUser.id);
 
-            // Comment & Mobile Layout
-            // We will create a Mobile-Only Footer row inside a cell, 
-            // or effectively restructure the visual using CSS on these elements.
-
-            // Mobile Footer: [Comment Icon (Left)] [Edit] [Delete (Right)]
+            // Mobile Footer: [Comment Icon (Left)] [Edit/Delete (Right - Owner Only)]
             const mobileFooterHtml = `
             <!-- Mobile Footer (Renamed to break cache) -->
             <div class="mobile-card-footer mobile-only" style="display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: center !important; width: 100% !important; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;">
@@ -608,14 +607,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     ` : '<span style="font-size:0.8rem; color:#ccc;">No Comment</span>'}
                 </div>
 
-                <!-- Right: Edit/Delete Buttons (Forced Horizontal) -->
+                <!-- Right: Edit/Delete Buttons (Forced Horizontal) - Owner Only -->
                 <div class="mobile-footer-right" style="display: flex !important; flex-direction: row !important; gap: 12px !important; align-items: center !important;">
+                    ${isOwner ? `
                     <button class="btn-icon-row btn-edit-row-mobile" data-id="${song.id}" style="padding: 8px 12px;">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </button>
                     <button class="btn-icon-row btn-delete-row-mobile" data-id="${song.id}" style="padding: 8px 12px;">
                         <i class="fa-solid fa-trash"></i>
                     </button>
+                    ` : '<span style="font-size:0.8rem; color:#aaa;">view only</span>'}
                 </div>
             </div>
 
@@ -623,7 +624,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div id="comment-${song.id}" class="mobile-comment-box" style="display:none !important; margin-top: 10px; background: #f8fbff; padding: 10px; border-radius: 8px; border: 1px solid #eee; font-size: 0.8rem; color: #444;">
                 ${escapeHtml(song.comment)}
             </div>
-        `;
+            `;
 
             tr.innerHTML = `
                 <td class="col-op">Op.${song.opus}</td>
@@ -639,12 +640,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 <!-- Desktop Columns -->
                 <td class="col-comment desktop-only mobile-hide-force">${escapeHtml(song.comment || '')}</td>
                 <td class="col-action desktop-only mobile-hide-force">
+                    ${isOwner ? `
                     <button class="btn-icon-row btn-edit-row" data-id="${song.id}">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </button>
                     <button class="btn-icon-row btn-delete-row" data-id="${song.id}">
                         <i class="fa-solid fa-trash"></i>
                     </button>
+                    ` : '<span style="color:#aaa; font-size:0.8rem;">View Only</span>'}
                 </td>
                 
                 <!-- Mobile Only Container -->
