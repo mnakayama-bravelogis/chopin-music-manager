@@ -460,9 +460,9 @@ textarea:focus {
 }
 
 .col-comment {
+    width: 25%;
     color: #555;
-    font-style: italic;
-    font-size: 0.85em;
+    font-size: 0.9rem;
     min-width: 120px;
 }
 

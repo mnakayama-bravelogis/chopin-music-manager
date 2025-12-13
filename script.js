@@ -251,8 +251,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleLogout() {
         await supabase.auth.signOut();
-        alert('Logged out successfully.');
-        window.location.reload(); // Force reload to clear state and UI
+        // The onAuthStateChange listener will handle the UI update (SIGNED_OUT event)
+        // No need to force reload, which might confuse the session state
     }
 
     // --- Data Migration Logic ---
