@@ -1,14 +1,34 @@
 // Data is loaded from data.js via script tag (window.chopinWorks)
 
-// version 2.1.0
+// version 2.1.1
 // Fail-safe: Inject critical mobile styles directly to bypass CSS caching issues
 (function injectMobileStyles() {
     const style = document.createElement('style');
     style.innerHTML = `
+        /* Force Hide Mobile Elements on Desktop */
+        @media (min-width: 769px) {
+            .mobile-only { display: none !important; }
+        }
+
+        /* Mobile Styles */
         @media (max-width: 768px) {
             .desktop-only { display: none !important; }
-            .mobile-only { display: block !important; }
-            .mobile-hide-force { display: none !important; } /* Triple safety */
+            .mobile-only { display: block !important; } 
+            
+            /* Specific layout for mobile elements */
+            .mobile-card-footer {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+            }
+            .mobile-footer-right {
+                 display: flex !important;
+                 flex-direction: row !important;
+                 gap: 12px !important;
+                 align-items: center !important;
+            }
+
             /* Extra safety for the red box elements explicitly */
             td.col-comment, td.col-action {
                 display: none !important; 
@@ -16,6 +36,8 @@
             /* Re-enable the mobile wrapper which might be a td */
             td.col-mobile-wrapper {
                 display: block !important;
+                padding: 0 !important;
+                border: none !important;
             }
         }
     `;
@@ -229,6 +251,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function handleLogout() {
         await supabase.auth.signOut();
+        alert('Logged out successfully.');
+        window.location.reload(); // Force reload to clear state and UI
     }
 
     // --- Data Migration Logic ---
@@ -397,7 +421,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- UI Helpers (Same as before) ---
     function initGenreFilter() {
-        // ... Same ...
         const filterSelect = document.getElementById('genre-filter');
         if (!filterSelect || !window.chopinWorks) return;
         const genres = [...new Set(window.chopinWorks.map(w => w.genre))].sort();
@@ -408,17 +431,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function initOpusDropdown() {
-        // ... Same ...
         if (!window.chopinWorks) return;
         const opuses = [...new Set(window.chopinWorks.map(w => w.op))].sort((a, b) => parseFloat(a) - parseFloat(b));
         opuses.forEach(op => {
             const option = document.createElement('option');
-            option.value = op; option.textContent = `Op. ${op}`; opusSelect.appendChild(option);
+            option.value = op; option.textContent = `Op.${op}`; opusSelect.appendChild(option);
         });
     }
 
     function handleOpusChange() {
-        // ... Same Logic ...
         const selectedOp = opusSelect.value;
         noSelect.innerHTML = '<option value="" disabled selected>Select No.</option>';
         noSelect.disabled = true;
@@ -596,7 +617,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Mobile Footer: [Comment Icon (Left)] [Edit/Delete (Right - Owner Only)]
             const mobileFooterHtml = `
             <!-- Mobile Footer (Renamed to break cache) -->
-            <div class="mobile-card-footer mobile-only" style="display: flex !important; flex-direction: row !important; justify-content: space-between !important; align-items: center !important; width: 100% !important; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;">
+            <div class="mobile-card-footer mobile-only" style="width: 100% !important; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;">
                 
                 <!-- Left: Comment Toggle -->
                 <div class="mobile-footer-left" style="flex: 1;">
@@ -608,7 +629,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
 
                 <!-- Right: Edit/Delete Buttons (Forced Horizontal) - Owner Only -->
-                <div class="mobile-footer-right" style="display: flex !important; flex-direction: row !important; gap: 12px !important; align-items: center !important;">
+                <div class="mobile-footer-right" style="">
                     ${isOwner ? `
                     <button class="btn-icon-row btn-edit-row-mobile" data-id="${song.id}" style="padding: 8px 12px;">
                         <i class="fa-solid fa-pen-to-square"></i>
@@ -651,7 +672,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
                 
                 <!-- Mobile Only Container -->
-                <td class="col-mobile-wrapper mobile-only" style="padding:0; border:none; display: block !important;">
+                <td class="col-mobile-wrapper mobile-only">
                     ${mobileFooterHtml}
                 </td>
             `;
