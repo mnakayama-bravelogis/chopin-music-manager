@@ -160,6 +160,12 @@ label {
     align-items: center;
 }
 
+.label-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
 /* Inputs */
 input[type="text"],
 input[type="url"],
