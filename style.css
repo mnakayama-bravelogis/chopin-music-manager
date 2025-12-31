@@ -1030,18 +1030,17 @@ textarea:focus {
     }
 }
 
-/* Video Modal Styles */
+/* --- Modals (Common System v2.7.1) --- */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(8px);
-    z-index: 2000;
+    z-index: 3000;
     display: none;
-    /* Hidden by default */
     justify-content: center;
     align-items: center;
     padding: 20px;
@@ -1051,42 +1050,45 @@ textarea:focus {
     position: relative;
     width: 100%;
     max-width: 900px;
-    background: #000;
+    background: #fff;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease;
+}
+
+/* Video Modal Tweak */
+#video-modal .modal-content {
+    background: #000;
 }
 
 .modal-close {
     position: absolute;
-    top: 5px;
-    right: 5px;
-    background: rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    top: 10px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     color: #fff;
-    font-size: 1rem;
-    width: 28px;
-    height: 28px;
+    font-size: 1.5rem;
+    width: 36px;
+    height: 36px;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    line-height: 1;
-    z-index: 2005;
+    z-index: 3010;
     transition: all 0.2s;
-    backdrop-filter: blur(4px);
 }
 
 .modal-close:hover {
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(255, 255, 255, 0.2);
     transform: scale(1.1);
 }
 
 .video-container {
     position: relative;
     padding-bottom: 56.25%;
-    /* 16:9 Aspect Ratio */
     height: 0;
     overflow: hidden;
 }
@@ -1099,17 +1101,47 @@ textarea:focus {
     height: 100%;
 }
 
+/* Comment Modal Specific */
+.comment-modal-body {
+    max-width: 500px;
+    padding: 2.5rem 2rem;
+    border-top: 5px solid var(--color-4);
+}
+
+.modal-title {
+    font-family: var(--font-heading);
+    color: var(--color-5);
+    margin-bottom: 1.2rem;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 0.8rem;
+}
+
+.comment-text-display {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: #333;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
 @media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+    }
+
     .modal-close {
-        top: 10px;
-        right: 10px;
+        color: #333;
+        /* Make it visible on white content */
+        background: #eee;
+        border: 1px solid #ddd;
+    }
+
+    #video-modal .modal-close {
+        color: #fff;
         background: rgba(0, 0, 0, 0.5);
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
     }
 }
