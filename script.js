@@ -1,6 +1,6 @@
 // Data is loaded from data.js via script tag (window.chopinWorks)
 
-// version 2.4.0
+// version 2.4.1
 // Fail-safe: Inject critical mobile styles directly to bypass CSS caching issues
 (function injectMobileStyles() {
     const style = document.createElement('style');
@@ -545,7 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
         editingId = id;
         showFormSection();
         submitBtn.classList.add('editing');
-        submitBtn.querySelector('span').textContent = '更新する';
+        submitBtn.querySelector('span').textContent = 'Update Piece';
         cancelBtn.classList.add('active');
 
         opusSelect.value = song.opus;
@@ -582,7 +582,7 @@ document.addEventListener('DOMContentLoaded', () => {
         songForm.reset();
         editingId = null;
         submitBtn.classList.remove('editing');
-        submitBtn.querySelector('span').textContent = '登録する';
+        submitBtn.querySelector('span').textContent = 'Save Piece';
         cancelBtn.classList.remove('active');
         noSelect.innerHTML = '<option value="" disabled selected>Select No.</option>';
         noSelect.disabled = true;
