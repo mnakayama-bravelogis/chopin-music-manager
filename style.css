@@ -777,20 +777,23 @@ textarea:focus {
     z-index: 1000;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
+    /* Allow scrolling from top */
+    overflow-y: auto;
+    padding: 2rem 1rem;
 }
 
 .auth-box {
-    /* Glassmorphism for the box itself */
     background: rgba(255, 255, 255, 0.9);
-    padding: 3rem 2.5rem;
-    /* More vertical padding */
+    padding: 2.5rem 2rem;
     border-radius: 20px;
-    width: 90%;
+    width: 100%;
     max-width: 420px;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(10px);
+    margin: auto;
+    /* Center vertically if space allows */
 }
 
 .auth-box .logo {
@@ -798,12 +801,17 @@ textarea:focus {
 }
 
 .auth-box h2 {
+    font-family: var(--font-heading);
     font-size: 1.8rem;
     color: var(--color-5);
-    border: none;
     margin: 0;
-    padding: 0;
-    font-family: var(--font-heading);
+    line-height: 1.2;
+    /* Ensure title isn't cut off */
+}
+
+.auth-box .input-group {
+    margin-bottom: 1.2rem;
+    text-align: left;
 }
 
 /* Auth Inputs specific style */

@@ -3,13 +3,11 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 let supabase = null;
 
-if (typeof createClient !== 'undefined') {
-    // If loaded via CDN (window.supabase)
+if (typeof window.supabase !== 'undefined') {
     const { createClient } = window.supabase;
     supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-} else if (window.supabase) {
-    // Direct global access check
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+} else {
+    console.error('Supabase SDK not loaded! Check your script tags.');
 }
 
 // Check connection helper

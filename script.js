@@ -1,6 +1,6 @@
 // Data is loaded from data.js via script tag (window.chopinWorks)
 
-// version 2.1.1
+// version 2.1.3
 // Fail-safe: Inject critical mobile styles directly to bypass CSS caching issues
 (function injectMobileStyles() {
     const style = document.createElement('style');
@@ -184,17 +184,24 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        authMessage.textContent = 'Sending reset link...';
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.href,
-        });
+        try {
+            authMessage.style.color = '#555';
+            authMessage.textContent = 'Sending reset link...';
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + window.location.pathname,
+            });
 
-        if (error) {
+            if (error) {
+                authMessage.style.color = 'red';
+                authMessage.textContent = 'Reset Error: ' + error.message;
+            } else {
+                authMessage.style.color = 'green';
+                authMessage.textContent = 'Password reset link sent to your email!';
+            }
+        } catch (err) {
+            console.error('Password reset exception:', err);
             authMessage.style.color = 'red';
-            authMessage.textContent = error.message;
-        } else {
-            authMessage.style.color = 'green';
-            authMessage.textContent = 'Password reset link sent to your email!';
+            authMessage.textContent = 'An unexpected error occurred.';
         }
     }
 
@@ -203,49 +210,54 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
+        if (!supabase) {
+            authMessage.style.color = 'red';
+            authMessage.textContent = 'Auth system not initialized. Please refresh.';
+            return;
+        }
+
         authMessage.style.color = '#555';
         authMessage.textContent = 'Connecting...';
         loginBtn.disabled = true;
 
-        // 1. Try Login
-        let { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        try {
+            // 1. Try Login
+            let { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-        if (error) {
-            console.log('Login Error:', error.message);
-            // 2. If login failed, check if it's because user doesn't exist
-            if (error.message.includes('Invalid login credentials')) {
-                // Try Sign Up
-                authMessage.textContent = 'Create new account...';
-                const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
+            if (error) {
+                console.log('Login Error:', error.message);
+                // 2. If login failed, check if it's because user doesn't exist
+                if (error.message.includes('Invalid login credentials')) {
+                    // Try Sign Up
+                    authMessage.textContent = 'Account not found. Creating new account...';
+                    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
 
-                if (signUpError) {
-                    // Sign up failed (maybe user exists but wrong password?)
-                    authMessage.style.color = 'red';
-                    authMessage.textContent = 'Login Failed: ' + signUpError.message;
-                    loginBtn.disabled = false;
-                } else {
-                    // Sign up succeeded
-                    if (signUpData.session) {
-                        // Auto logged in (Email confirm disabled)
-                        authMessage.textContent = 'Welcome!';
-                    } else {
-                        // Email confirm required
-                        authMessage.style.color = 'green';
-                        authMessage.style.fontWeight = 'bold';
-                        authMessage.innerHTML = '<i class="fa-solid fa-envelope"></i> Confirmation email sent!<br>Please check your inbox.';
+                    if (signUpError) {
+                        authMessage.style.color = 'red';
+                        authMessage.textContent = 'Error: ' + signUpError.message;
                         loginBtn.disabled = false;
-                        loginBtn.querySelector('span').textContent = 'Check Email & Retry';
+                    } else {
+                        if (signUpData.session) {
+                            authMessage.style.color = 'green';
+                            authMessage.textContent = 'Welcome! Logged in.';
+                        } else {
+                            authMessage.style.color = 'green';
+                            authMessage.style.fontWeight = 'bold';
+                            authMessage.innerHTML = '<i class="fa-solid fa-envelope"></i> Check your inbox for confirmation!';
+                            loginBtn.disabled = false;
+                        }
                     }
+                } else {
+                    authMessage.style.color = 'red';
+                    authMessage.textContent = error.message;
+                    loginBtn.disabled = false;
                 }
-            } else if (error.message.includes('Email not confirmed')) {
-                authMessage.style.color = 'orange';
-                authMessage.textContent = 'Please confirm your email address first.';
-                loginBtn.disabled = false;
-            } else {
-                authMessage.style.color = 'red';
-                authMessage.textContent = error.message;
-                loginBtn.disabled = false;
             }
+        } catch (err) {
+            console.error('Login exception:', err);
+            authMessage.style.color = 'red';
+            authMessage.textContent = 'An unexpected error occurred during login.';
+            loginBtn.disabled = false;
         }
     }
 
