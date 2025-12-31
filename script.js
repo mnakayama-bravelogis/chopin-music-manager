@@ -1,6 +1,6 @@
 // Data is loaded from data.js via script tag (window.chopinWorks)
 
-// version 2.1.4
+// version 2.2.0
 // Fail-safe: Inject critical mobile styles directly to bypass CSS caching issues
 (function injectMobileStyles() {
     const style = document.createElement('style');
@@ -61,6 +61,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const songForm = document.getElementById('song-form');
     const submitBtn = document.getElementById('submit-btn');
     const cancelBtn = document.getElementById('cancel-edit-btn');
+    const showFormBtn = document.getElementById('show-form-btn');
+    const addPieceSection = document.getElementById('add-song-section');
 
     const opusSelect = document.getElementById('opus-select');
     const noSelect = document.getElementById('no-select');
@@ -101,6 +103,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('forgot-password-link').addEventListener('click', handlePasswordReset);
 
     // --- App Listeners ---
+    showFormBtn.addEventListener('click', () => {
+        resetForm(); // Ensure clean state
+        showFormSection();
+    });
     addYoutubeBtn.addEventListener('click', () => addYoutubeInput(''));
     opusSelect.addEventListener('change', handleOpusChange);
     noSelect.addEventListener('change', handleNoChange);
@@ -505,7 +511,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const song = library.find(s => s.id === id);
         if (!song) return;
         editingId = id;
-        songForm.scrollIntoView({ behavior: 'smooth' });
+        showFormSection();
         submitBtn.classList.add('editing');
         submitBtn.querySelector('span').textContent = '更新する';
         cancelBtn.classList.add('active');
@@ -541,6 +547,18 @@ document.addEventListener('DOMContentLoaded', () => {
         youtubeContainer.innerHTML = '<label>YouTube URLs <button type="button" id="add-youtube-btn" class="btn-icon-small"><i class="fa-solid fa-plus"></i></button></label>';
         document.getElementById('add-youtube-btn').addEventListener('click', () => addYoutubeInput(''));
         addYoutubeInput('');
+        hideFormSection();
+    }
+
+    // --- Modern UI Toggles ---
+    function showFormSection() {
+        addPieceSection.style.display = 'block';
+        addPieceSection.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function hideFormSection() {
+        addPieceSection.style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function renderLibrary() {

@@ -339,6 +339,41 @@ textarea:focus {
     margin-top: 0.5rem;
 }
 
+/* Primary Outline Button (for Add Piece) */
+.btn-primary-outline {
+    background: transparent;
+    color: var(--color-4);
+    border: 2px solid var(--color-4);
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.btn-primary-outline:hover {
+    background: var(--color-4);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(45, 78, 124, 0.2);
+    transform: translateY(-1px);
+}
+
+.section-header-compact {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.section-header-compact h2 {
+    margin-bottom: 0;
+}
+
 /* Table View */
 .table-responsive {
     overflow-x: auto;
