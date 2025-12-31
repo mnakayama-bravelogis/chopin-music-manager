@@ -118,6 +118,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const authMessage = document.getElementById('auth-message');
     const userEmailSpan = document.getElementById('user-email');
 
+    // Modals
+    const videoModal = document.getElementById('video-modal');
+    const commentModal = document.getElementById('comment-modal');
+    const commentModalText = document.getElementById('comment-modal-text');
+
     const songForm = document.getElementById('song-form');
     const submitBtn = document.getElementById('submit-btn');
     const cancelBtn = document.getElementById('cancel-edit-btn');
