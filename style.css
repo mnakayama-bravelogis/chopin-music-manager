@@ -996,15 +996,28 @@ textarea:focus {
 
 .modal-close {
     position: absolute;
-    top: -40px;
-    right: 0;
-    background: none;
-    border: none;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
     color: #fff;
-    font-size: 2.5rem;
+    font-size: 1.5rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     line-height: 1;
-    z-index: 2001;
+    z-index: 2005;
+    transition: all 0.3s;
+    backdrop-filter: blur(4px);
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: scale(1.1);
 }
 
 .video-container {
