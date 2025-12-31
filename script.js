@@ -1,6 +1,6 @@
 // Data is loaded from data.js via script tag (window.chopinWorks)
 
-// version 2.1.3
+// version 2.1.4
 // Fail-safe: Inject critical mobile styles directly to bypass CSS caching issues
 (function injectMobileStyles() {
     const style = document.createElement('style');
@@ -46,6 +46,9 @@
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Supabase Client ---
+    const supabase = window.chopinSupabase;
+
     // --- Elements ---
     const authOverlay = document.getElementById('auth-overlay');
     const appContainer = document.getElementById('app-container');
@@ -201,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
             console.error('Password reset exception:', err);
             authMessage.style.color = 'red';
-            authMessage.textContent = 'An unexpected error occurred.';
+            authMessage.textContent = 'Unexpected Error: ' + err.message;
         }
     }
 
@@ -256,7 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
             console.error('Login exception:', err);
             authMessage.style.color = 'red';
-            authMessage.textContent = 'An unexpected error occurred during login.';
+            authMessage.textContent = 'Unexpected Error: ' + err.message;
             loginBtn.disabled = false;
         }
     }
