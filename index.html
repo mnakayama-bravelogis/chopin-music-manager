@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chopin Music Manager</title>
-    <link rel="stylesheet" href="style.css?v=2.4.1">
+    <link rel="stylesheet" href="style.css?v=2.5.0">
     <link rel="icon" type="image/png" href="favicon.png">
     <!-- Google Fonts for Premium Look -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,11 +28,12 @@
                 <div>
                     <h2>Chopin Music Manager</h2>
                     <span
-                        style="font-size: 0.7rem; opacity: 0.6; display: block; text-align: center; margin-top: -5px;">v2.4.1
+                        style="font-size: 0.7rem; opacity: 0.6; display: block; text-align: center; margin-top: -5px;">v2.5.0
                         Stable</span>
                 </div>
             </div>
             <p style="text-align:center; margin-bottom:1.5rem; color:#555;">Sign in to access your collection</p>
+            <p id="auth-message" class="auth-message-banner"></p>
 
             <form id="login-form">
                 <div class="input-group">
@@ -65,7 +66,6 @@
                         Password?</a>
                 </div>
 
-                <p id="auth-message" style="color:red; text-align:center; margin-top:1rem; font-size:0.9rem;"></p>
                 <p style="text-align:center; margin-top:1rem; font-size:0.85rem; color:#666;">
                     (If no account exists, one will be created automatically)
                 </p>
@@ -88,7 +88,7 @@
                 <i class="fa-solid fa-music"></i>
                 <h1>Frédéric Chopin</h1>
             </div>
-            <p class="subtitle">Personal Music Collection</p>
+            <p class="subtitle">My Favorite Collection</p>
         </header>
 
         <main>
@@ -199,8 +199,26 @@
                     style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                     <h2 style="margin-bottom: 0;"><i class="fa-solid fa-list-ul"></i> Collection</h2>
                     <button id="show-form-btn" class="btn-primary-outline">
-                        <i class="fa-solid fa-plus-circle"></i> Add New Piece
+                        <i class="fa-solid fa-plus-circle"></i> <span class="btn-text-mobile-hide">Add New Piece</span>
                     </button>
+                </div>
+
+                <!-- Mobile Sort & Filter Bar -->
+                <div class="mobile-controls-bar mobile-only">
+                    <div class="control-group">
+                        <label>Genre</label>
+                        <select id="genre-filter-mobile" class="mobile-select">
+                            <option value="">All Genres</option>
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label>Sort</label>
+                        <select id="sort-picker-mobile" class="mobile-select">
+                            <option value="rating_desc">Rating (High to Low)</option>
+                            <option value="op_asc">Opus (Old to New)</option>
+                        </select>
+                    </div>
                 </div>
                 <!-- Table View for Songs -->
                 <div class="table-responsive">
@@ -237,14 +255,14 @@
 
         <footer>
             <p>&copy; 2025 Chopin Music Manager. All rights reserved. <span
-                    style="opacity: 0.5; font-size: 0.8em;">(v2.4.1 Stable)</span></p>
+                    style="opacity: 0.5; font-size: 0.8em;">(v2.5.0 Stable)</span></p>
         </footer>
     </div>
     <script src="data.js"></script>
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase_client.js"></script>
-    <script src="script.js?v=2.4.1"></script>
+    <script src="script.js?v=2.5.0"></script>
 
     <!-- Video Modal -->
     <div id="video-modal" class="modal-overlay">

@@ -1,6 +1,6 @@
 // Data is loaded from data.js via script tag (window.chopinWorks)
 
-// version 2.4.1
+// version 2.5.0
 // Fail-safe: Inject critical mobile styles directly to bypass CSS caching issues
 (function injectMobileStyles() {
     const style = document.createElement('style');
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentUser = null;
 
     // Sort/Filter State
-    let sortConfig = { key: 'op', direction: 'asc' };
+    let sortConfig = { key: 'rating', direction: 'desc' }; // Default: Rating Desc
     let genreFilter = '';
     let editingId = null;
 
@@ -125,9 +125,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('genre-filter').addEventListener('change', (e) => {
         genreFilter = e.target.value;
+        document.getElementById('genre-filter-mobile').value = genreFilter; // Sync mobile
         renderLibrary();
     });
     document.getElementById('genre-filter').addEventListener('click', (e) => e.stopPropagation());
+
+    document.getElementById('genre-filter-mobile').addEventListener('change', (e) => {
+        genreFilter = e.target.value;
+        document.getElementById('genre-filter').value = genreFilter; // Sync desktop
+        renderLibrary();
+    });
+
+    document.getElementById('sort-picker-mobile').addEventListener('change', (e) => {
+        const val = e.target.value;
+        if (val === 'rating_desc') {
+            sortConfig = { key: 'rating', direction: 'desc' };
+        } else if (val === 'op_asc') {
+            sortConfig = { key: 'op', direction: 'asc' };
+        }
+        renderLibrary();
+    });
 
     songForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -213,15 +230,21 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (error) {
-                authMessage.style.color = 'red';
+                authMessage.style.display = 'block';
+                authMessage.style.backgroundColor = '#fdecea';
+                authMessage.style.color = '#d32f2f';
                 authMessage.textContent = 'Reset Error: ' + error.message;
             } else {
-                authMessage.style.color = 'green';
+                authMessage.style.display = 'block';
+                authMessage.style.backgroundColor = '#edf7ed';
+                authMessage.style.color = '#2e7d32';
                 authMessage.textContent = 'Password reset link sent to your email!';
             }
         } catch (err) {
             console.error('Password reset exception:', err);
-            authMessage.style.color = 'red';
+            authMessage.style.display = 'block';
+            authMessage.style.backgroundColor = '#fdecea';
+            authMessage.style.color = '#d32f2f';
             authMessage.textContent = 'Unexpected Error: ' + err.message;
         }
     }
@@ -250,26 +273,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 // 2. If login failed, check if it's because user doesn't exist
                 if (error.message.includes('Invalid login credentials')) {
                     // Try Sign Up
+                    authMessage.style.display = 'block';
+                    authMessage.style.backgroundColor = '#fff3cd';
+                    authMessage.style.color = '#856404';
                     authMessage.textContent = 'Account not found. Creating new account...';
                     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
 
                     if (signUpError) {
-                        authMessage.style.color = 'red';
+                        authMessage.style.display = 'block';
+                        authMessage.style.backgroundColor = '#fdecea';
+                        authMessage.style.color = '#d32f2f';
                         authMessage.textContent = 'Error: ' + signUpError.message;
                         loginBtn.disabled = false;
                     } else {
                         if (signUpData.session) {
-                            authMessage.style.color = 'green';
+                            authMessage.style.display = 'block';
+                            authMessage.style.backgroundColor = '#edf7ed';
+                            authMessage.style.color = '#2e7d32';
                             authMessage.textContent = 'Welcome! Logged in.';
                         } else {
-                            authMessage.style.color = 'green';
-                            authMessage.style.fontWeight = 'bold';
+                            authMessage.style.display = 'block';
+                            authMessage.style.backgroundColor = '#edf7ed';
+                            authMessage.style.color = '#2e7d32';
                             authMessage.innerHTML = '<i class="fa-solid fa-envelope"></i> Check your inbox for confirmation!';
                             loginBtn.disabled = false;
                         }
                     }
                 } else {
-                    authMessage.style.color = 'red';
+                    authMessage.style.display = 'block';
+                    authMessage.style.backgroundColor = '#fdecea';
+                    authMessage.style.color = '#d32f2f';
                     authMessage.textContent = error.message;
                     loginBtn.disabled = false;
                 }
@@ -457,11 +490,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- UI Helpers (Same as before) ---
     function initGenreFilter() {
         const filterSelect = document.getElementById('genre-filter');
+        const filterMobile = document.getElementById('genre-filter-mobile');
         if (!filterSelect || !window.chopinWorks) return;
         const genres = [...new Set(window.chopinWorks.map(w => w.genre))].sort();
         genres.forEach(g => {
             const option = document.createElement('option');
-            option.value = g; option.textContent = g; filterSelect.appendChild(option);
+            option.value = g; option.textContent = g;
+            filterSelect.appendChild(option.cloneNode(true));
+            if (filterMobile) filterMobile.appendChild(option.cloneNode(true));
         });
     }
 
