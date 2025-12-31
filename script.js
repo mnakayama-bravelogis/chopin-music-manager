@@ -1,6 +1,6 @@
 // Data is loaded from data.js via script tag (window.chopinWorks)
 
-// version 2.5.3
+// version 2.6.0
 // Fail-safe: Inject critical mobile styles directly to bypass CSS caching issues
 (function injectMobileStyles() {
     const style = document.createElement('style');
@@ -38,6 +38,23 @@
                 display: block !important;
                 padding: 0 !important;
                 border: none !important;
+            }
+
+            /* v2.6.0 COMPACT REFINEMENT */
+            .song-table tr {
+                margin-bottom: 0.7rem !important;
+                padding: 0.7rem 0.8rem !important;
+            }
+            .song-table td {
+                padding: 0.1rem 0 !important;
+            }
+            .yt-thumbnail-link {
+                width: 70px !important;
+                height: 52px !important;
+            }
+            .mobile-card-footer {
+                margin-top: 6px !important;
+                padding-top: 6px !important;
             }
 
             /* Mobile Controls Bar (v2.5.3 DECISIVE FIX) */

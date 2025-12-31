@@ -559,8 +559,8 @@ textarea:focus {
 
 .yt-thumbnail-link {
     display: block;
-    width: 100px;
-    height: 75px;
+    width: 80px;
+    height: 60px;
     /* Increased size */
     background-size: cover;
     background-position: center;
@@ -634,16 +634,16 @@ textarea:focus {
     /* Card Style for Row */
     .song-table tr {
         background: rgba(255, 255, 255, 0.9);
-        margin-bottom: 1rem;
+        margin-bottom: 0.7rem;
         border-radius: 12px;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        padding: 1rem;
+        padding: 0.7rem 0.8rem;
         position: relative;
         border: 1px solid rgba(255, 255, 255, 0.5);
     }
 
     .song-table td {
-        padding: 0.2rem 0;
+        padding: 0.1rem 0;
         border: none;
         background: transparent !important;
         text-align: left;
