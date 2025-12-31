@@ -1,6 +1,6 @@
 // Data is loaded from data.js via script tag (window.chopinWorks)
 
-// version 2.2.0
+// version 2.3.0
 // Fail-safe: Inject critical mobile styles directly to bypass CSS caching issues
 (function injectMobileStyles() {
     const style = document.createElement('style');
@@ -63,6 +63,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const cancelBtn = document.getElementById('cancel-edit-btn');
     const showFormBtn = document.getElementById('show-form-btn');
     const addPieceSection = document.getElementById('add-song-section');
+    const videoModal = document.getElementById('video-modal');
+    const youtubeIframe = document.getElementById('youtube-iframe');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
 
     const opusSelect = document.getElementById('opus-select');
     const noSelect = document.getElementById('no-select');
@@ -101,6 +104,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('google-login-btn').addEventListener('click', () => handleSocialLogin('google'));
     document.getElementById('apple-login-btn').addEventListener('click', () => handleSocialLogin('apple'));
     document.getElementById('forgot-password-link').addEventListener('click', handlePasswordReset);
+
+    // Modal Close Listeners
+    modalCloseBtn.addEventListener('click', closeVideoModal);
+    videoModal.addEventListener('click', (e) => {
+        if (e.target === videoModal) closeVideoModal();
+    });
 
     // --- App Listeners ---
     showFormBtn.addEventListener('click', () => {
@@ -728,6 +737,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     // Expose helpers globally for onclick handlers
     window.editSong = editSong;
+    window.openVideoModal = openVideoModal;
+
+    function openVideoModal(videoId) {
+        if (!videoId) return;
+        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+        youtubeIframe.src = embedUrl;
+        videoModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+
+    function closeVideoModal() {
+        youtubeIframe.src = '';
+        videoModal.style.display = 'none';
+        document.body.style.overflow = ''; // Restore scrolling
+    }
 
     function generateStars(rating) {
         let html = '';
@@ -746,7 +770,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const videoId = getYoutubeId(url);
             if (videoId) {
                 const thumbUrl = `https://img.youtube.com/vi/${videoId}/default.jpg`;
-                html += `<a href="${url}" target="_blank" class="yt-thumbnail-link" style="background-image: url('${thumbUrl}')"><span class="yt-icon-overlay"><i class="fa-brands fa-youtube"></i></span></a>`;
+                html += `<a href="#" class="yt-thumbnail-link" style="background-image: url('${thumbUrl}')" onclick="openVideoModal('${videoId}'); return false;"><span class="yt-icon-overlay"><i class="fa-brands fa-youtube"></i></span></a>`;
             } else {
                 html += `<a href="${url}" target="_blank"><i class="fa-solid fa-link"></i></a>`;
             }
