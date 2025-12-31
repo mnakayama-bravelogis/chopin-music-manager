@@ -1,6 +1,6 @@
 // Data is loaded from data.js via script tag (window.chopinWorks)
 
-// version 2.7.0
+// version 2.7.1
 // Fail-safe: Inject critical mobile styles directly to bypass CSS caching issues
 (function injectMobileStyles() {
     const style = document.createElement('style');
@@ -769,25 +769,17 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('.song-table').style.display = 'table';
         }
 
-        // Mobile Comment Toggle Logic
+        // Mobile Comment Modal Logic (v2.7.1 DECISIVE FIX)
         window.toggleComment = function (btn) {
-            // New Logic: ID based (data-comment-id)
-            const id = btn.dataset.commentId;
-            const content = document.getElementById(id);
+            const id = btn.dataset.commentId; // comment-${song.id}
+            const songId = id.replace('comment-', '');
+            const song = library.find(s => s.id === songId);
 
-            // Toggle Icon and Display
-            if (content.style.display === 'none' || content.style.display === '') {
-                content.style.display = 'block';
-                // Active Style (Solid Blue)
-                btn.style.background = '#4f83b0';
-                btn.style.color = '#fff';
-                btn.style.borderColor = '#4f83b0';
-            } else {
-                content.style.display = 'none';
-                // Inactive Style (White)
-                btn.style.background = 'white';
-                btn.style.color = '#4f83b0';
-                btn.style.borderColor = '#eee';
+            if (song && song.comment) {
+                const modal = document.getElementById('comment-modal');
+                const textDisplay = document.getElementById('comment-modal-text');
+                textDisplay.textContent = song.comment;
+                modal.style.display = 'flex';
             }
         };
 
@@ -836,10 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
 
-            <!-- Comment Box (Renamed & Hidden by default) -->
-            <div id="comment-${song.id}" class="mobile-comment-box" style="display:none !important; margin-top: 10px; background: #f8fbff; padding: 10px; border-radius: 8px; border: 1px solid #eee; font-size: 0.8rem; color: #444;">
-                ${escapeHtml(song.comment)}
-            </div>
+            \u003c!-- Comment Box removed - using Modal in v2.7.1 --\u003e
             `;
 
             tr.innerHTML = `
