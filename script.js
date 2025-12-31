@@ -1,6 +1,6 @@
 // Data is loaded from data.js via script tag (window.chopinWorks)
 
-// version 2.6.0
+// version 2.7.0
 // Fail-safe: Inject critical mobile styles directly to bypass CSS caching issues
 (function injectMobileStyles() {
     const style = document.createElement('style');
@@ -92,6 +92,12 @@
                 background: #fff !important;
                 color: #2d4e7c !important;
                 min-width: 0 !important;
+            }
+
+            /* v2.7.0 Modal Tweak */
+            .comment-modal-body {
+                width: 95% !important;
+                margin: 0 auto !important;
             }
         }
     `;
