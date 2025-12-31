@@ -112,454 +112,454 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- App Listeners ---
-    resetForm(); // Ensure clean state
-    showFormSection();
-});
-
-document.getElementById('search-youtube-btn').addEventListener('click', handleYoutubeSearch);
-
-addYoutubeBtn.addEventListener('click', () => addYoutubeInput(''));
-opusSelect.addEventListener('change', handleOpusChange);
-noSelect.addEventListener('change', handleNoChange);
-
-document.getElementById('genre-filter').addEventListener('change', (e) => {
-    genreFilter = e.target.value;
-    renderLibrary();
-});
-document.getElementById('genre-filter').addEventListener('click', (e) => e.stopPropagation());
-
-songForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    saveSong();
-});
-
-cancelBtn.addEventListener('click', resetForm);
-
-tableHeader.addEventListener('click', (e) => {
-    const th = e.target.closest('th');
-    if (!th || !th.dataset.sort) return;
-    const key = th.dataset.sort;
-    if (sortConfig.key === key) {
-        sortConfig.direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
-    } else {
-        sortConfig.key = key;
-        sortConfig.direction = (key === 'rating') ? 'desc' : 'asc';
-    }
-    renderLibrary();
-});
-
-// --- Auth Functions ---
-
-async function checkAuth() {
-    if (!supabase) return;
-    const { data: { session } } = await supabase.auth.getSession();
-    updateAuthState(session);
-
-    // Listen for changes
-    supabase.auth.onAuthStateChange((_event, session) => {
-        updateAuthState(session);
+    showFormBtn.addEventListener('click', () => {
+        resetForm(); // Ensure clean state
+        showFormSection();
     });
-}
 
-async function updateAuthState(session) {
-    if (session) {
-        currentUser = session.user;
-        userEmailSpan.textContent = currentUser.email;
-        authOverlay.style.display = 'none';
-        appContainer.style.display = 'block';
+    document.getElementById('search-youtube-btn').addEventListener('click', handleYoutubeSearch);
 
-        // Check for migration
-        checkForMigration();
+    addYoutubeBtn.addEventListener('click', () => addYoutubeInput(''));
+    opusSelect.addEventListener('change', handleOpusChange);
+    noSelect.addEventListener('change', handleNoChange);
 
-        // Load Data
-        await fetchLibrary();
-    } else {
-        currentUser = null;
-        authOverlay.style.display = 'flex';
-        appContainer.style.display = 'none';
-        library = [];
-    }
-}
+    document.getElementById('genre-filter').addEventListener('change', (e) => {
+        genreFilter = e.target.value;
+        renderLibrary();
+    });
+    document.getElementById('genre-filter').addEventListener('click', (e) => e.stopPropagation());
 
-async function handleSocialLogin(provider) {
-    authMessage.textContent = `Redirecting to ${provider}...`;
-    const { error } = await supabase.auth.signInWithOAuth({
-        provider: provider,
-        options: {
-            redirectTo: window.location.href // Redirect back to this page
+    songForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        saveSong();
+    });
+
+    cancelBtn.addEventListener('click', resetForm);
+
+    tableHeader.addEventListener('click', (e) => {
+        const th = e.target.closest('th');
+        if (!th || !th.dataset.sort) return;
+        const key = th.dataset.sort;
+        if (sortConfig.key === key) {
+            sortConfig.direction = sortConfig.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            sortConfig.key = key;
+            sortConfig.direction = (key === 'rating') ? 'desc' : 'asc';
         }
+        renderLibrary();
     });
-    if (error) {
-        authMessage.style.color = 'red';
-        authMessage.textContent = error.message;
-    }
-}
 
-async function handlePasswordReset(e) {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    if (!email) {
-        authMessage.style.color = 'orange';
-        authMessage.textContent = 'Please enter your email above to reset password.';
-        return;
-    }
+    // --- Auth Functions ---
 
-    try {
-        authMessage.style.color = '#555';
-        authMessage.textContent = 'Sending reset link...';
-        const { error } = await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.origin + window.location.pathname,
+    async function checkAuth() {
+        if (!supabase) return;
+        const { data: { session } } = await supabase.auth.getSession();
+        updateAuthState(session);
+
+        // Listen for changes
+        supabase.auth.onAuthStateChange((_event, session) => {
+            updateAuthState(session);
         });
+    }
 
+    async function updateAuthState(session) {
+        if (session) {
+            currentUser = session.user;
+            userEmailSpan.textContent = currentUser.email;
+            authOverlay.style.display = 'none';
+            appContainer.style.display = 'block';
+
+            // Check for migration
+            checkForMigration();
+
+            // Load Data
+            await fetchLibrary();
+        } else {
+            currentUser = null;
+            authOverlay.style.display = 'flex';
+            appContainer.style.display = 'none';
+            library = [];
+        }
+    }
+
+    async function handleSocialLogin(provider) {
+        authMessage.textContent = `Redirecting to ${provider}...`;
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: provider,
+            options: {
+                redirectTo: window.location.href // Redirect back to this page
+            }
+        });
         if (error) {
             authMessage.style.color = 'red';
-            authMessage.textContent = 'Reset Error: ' + error.message;
-        } else {
-            authMessage.style.color = 'green';
-            authMessage.textContent = 'Password reset link sent to your email!';
+            authMessage.textContent = error.message;
         }
-    } catch (err) {
-        console.error('Password reset exception:', err);
-        authMessage.style.color = 'red';
-        authMessage.textContent = 'Unexpected Error: ' + err.message;
-    }
-}
-
-async function handleLogin(e) {
-    e.preventDefault();
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-
-    if (!supabase) {
-        authMessage.style.color = 'red';
-        authMessage.textContent = 'Auth system not initialized. Please refresh.';
-        return;
     }
 
-    authMessage.style.color = '#555';
-    authMessage.textContent = 'Connecting...';
-    loginBtn.disabled = true;
+    async function handlePasswordReset(e) {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        if (!email) {
+            authMessage.style.color = 'orange';
+            authMessage.textContent = 'Please enter your email above to reset password.';
+            return;
+        }
 
-    try {
-        // 1. Try Login
-        let { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        try {
+            authMessage.style.color = '#555';
+            authMessage.textContent = 'Sending reset link...';
+            const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + window.location.pathname,
+            });
 
-        if (error) {
-            console.log('Login Error:', error.message);
-            // 2. If login failed, check if it's because user doesn't exist
-            if (error.message.includes('Invalid login credentials')) {
-                // Try Sign Up
-                authMessage.textContent = 'Account not found. Creating new account...';
-                const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
-
-                if (signUpError) {
-                    authMessage.style.color = 'red';
-                    authMessage.textContent = 'Error: ' + signUpError.message;
-                    loginBtn.disabled = false;
-                } else {
-                    if (signUpData.session) {
-                        authMessage.style.color = 'green';
-                        authMessage.textContent = 'Welcome! Logged in.';
-                    } else {
-                        authMessage.style.color = 'green';
-                        authMessage.style.fontWeight = 'bold';
-                        authMessage.innerHTML = '<i class="fa-solid fa-envelope"></i> Check your inbox for confirmation!';
-                        loginBtn.disabled = false;
-                    }
-                }
-            } else {
+            if (error) {
                 authMessage.style.color = 'red';
-                authMessage.textContent = error.message;
-                loginBtn.disabled = false;
+                authMessage.textContent = 'Reset Error: ' + error.message;
+            } else {
+                authMessage.style.color = 'green';
+                authMessage.textContent = 'Password reset link sent to your email!';
             }
+        } catch (err) {
+            console.error('Password reset exception:', err);
+            authMessage.style.color = 'red';
+            authMessage.textContent = 'Unexpected Error: ' + err.message;
         }
-    } catch (err) {
-        console.error('Login exception:', err);
-        authMessage.style.color = 'red';
-        authMessage.textContent = 'Unexpected Error: ' + err.message;
-        loginBtn.disabled = false;
     }
-}
 
-async function handleLogout() {
-    await supabase.auth.signOut();
-    // Force reload to completely clear UI state, but give a small buffer for the signout to process
-    setTimeout(() => {
-        window.location.reload();
-    }, 500);
-}
+    async function handleLogin(e) {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
 
-// --- Data Migration Logic ---
-function checkForMigration() {
-    const localData = localStorage.getItem(STORAGE_KEY);
-    if (localData && JSON.parse(localData).length > 0) {
-        // Show migration banner if not present
-        if (!document.getElementById('migration-banner')) {
-            const banner = document.createElement('div');
-            banner.id = 'migration-banner';
-            banner.className = 'migration-banner';
-            banner.innerHTML = `
+        if (!supabase) {
+            authMessage.style.color = 'red';
+            authMessage.textContent = 'Auth system not initialized. Please refresh.';
+            return;
+        }
+
+        authMessage.style.color = '#555';
+        authMessage.textContent = 'Connecting...';
+        loginBtn.disabled = true;
+
+        try {
+            // 1. Try Login
+            let { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                console.log('Login Error:', error.message);
+                // 2. If login failed, check if it's because user doesn't exist
+                if (error.message.includes('Invalid login credentials')) {
+                    // Try Sign Up
+                    authMessage.textContent = 'Account not found. Creating new account...';
+                    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({ email, password });
+
+                    if (signUpError) {
+                        authMessage.style.color = 'red';
+                        authMessage.textContent = 'Error: ' + signUpError.message;
+                        loginBtn.disabled = false;
+                    } else {
+                        if (signUpData.session) {
+                            authMessage.style.color = 'green';
+                            authMessage.textContent = 'Welcome! Logged in.';
+                        } else {
+                            authMessage.style.color = 'green';
+                            authMessage.style.fontWeight = 'bold';
+                            authMessage.innerHTML = '<i class="fa-solid fa-envelope"></i> Check your inbox for confirmation!';
+                            loginBtn.disabled = false;
+                        }
+                    }
+                } else {
+                    authMessage.style.color = 'red';
+                    authMessage.textContent = error.message;
+                    loginBtn.disabled = false;
+                }
+            }
+        } catch (err) {
+            console.error('Login exception:', err);
+            authMessage.style.color = 'red';
+            authMessage.textContent = 'Unexpected Error: ' + err.message;
+            loginBtn.disabled = false;
+        }
+    }
+
+    async function handleLogout() {
+        await supabase.auth.signOut();
+        // Force reload to completely clear UI state, but give a small buffer for the signout to process
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+    }
+
+    // --- Data Migration Logic ---
+    function checkForMigration() {
+        const localData = localStorage.getItem(STORAGE_KEY);
+        if (localData && JSON.parse(localData).length > 0) {
+            // Show migration banner if not present
+            if (!document.getElementById('migration-banner')) {
+                const banner = document.createElement('div');
+                banner.id = 'migration-banner';
+                banner.className = 'migration-banner';
+                banner.innerHTML = `
                     <span><i class="fa-solid fa-triangle-exclamation"></i> Found local data on this device. Upload to cloud?</span>
                     <button class="btn-migrate" id="btn-migrate">Upload & Sync</button>
                 `;
-            appContainer.querySelector('main').prepend(banner);
-            document.getElementById('btn-migrate').addEventListener('click', executeMigration);
+                appContainer.querySelector('main').prepend(banner);
+                document.getElementById('btn-migrate').addEventListener('click', executeMigration);
+            }
         }
     }
-}
 
-async function executeMigration() {
-    const btn = document.getElementById('btn-migrate');
-    btn.textContent = 'Uploading...';
-    btn.disabled = true;
+    async function executeMigration() {
+        const btn = document.getElementById('btn-migrate');
+        btn.textContent = 'Uploading...';
+        btn.disabled = true;
 
-    try {
-        const localData = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        try {
+            const localData = JSON.parse(localStorage.getItem(STORAGE_KEY));
 
-        // Transform for DB (snake_case)
-        const rows = localData.map(item => ({
-            user_id: currentUser.id,
-            opus: item.opus,
-            number: item.number,
-            title_ja: item.titleJa,
-            title_en: item.titleEn,
-            genre: item.genre,
-            year: item.year,
-            rating: item.rating,
-            comment: item.comment,
-            youtube_urls: item.youtubeUrls,
-            created_at: item.createdAt || new Date().toISOString()
+            // Transform for DB (snake_case)
+            const rows = localData.map(item => ({
+                user_id: currentUser.id,
+                opus: item.opus,
+                number: item.number,
+                title_ja: item.titleJa,
+                title_en: item.titleEn,
+                genre: item.genre,
+                year: item.year,
+                rating: item.rating,
+                comment: item.comment,
+                youtube_urls: item.youtubeUrls,
+                created_at: item.createdAt || new Date().toISOString()
+            }));
+
+            const { error } = await supabase.from('chopin_library').insert(rows);
+            if (error) throw error;
+
+            alert('Migration Successful! Local data has been moved to the cloud.');
+            localStorage.removeItem(STORAGE_KEY); // Clear local
+            document.getElementById('migration-banner').remove();
+            await fetchLibrary(); // Refresh
+
+        } catch (err) {
+            console.error(err);
+            alert('Migration Failed: ' + err.message);
+            btn.textContent = 'Try Again';
+            btn.disabled = false;
+        }
+    }
+
+    // --- Database Functions ---
+
+    async function fetchLibrary() {
+        if (!currentUser) return;
+
+        // Fetch from Supabase
+        const { data, error } = await supabase
+            .from('chopin_library')
+            .select('*'); // RLS ensures only user's data
+
+        if (error) {
+            console.error('Fetch error:', error);
+            return;
+        }
+
+        // Map back to app format (camelCase)
+        library = data.map(row => ({
+            id: row.id,
+            userId: row.user_id, // Added for ownership check
+            opus: row.opus,
+            number: row.number,
+            titleJa: row.title_ja,
+            titleEn: row.title_en,
+            genre: row.genre,
+            year: row.year,
+            rating: row.rating,
+            comment: row.comment,
+            youtubeUrls: row.youtube_urls || [],
+            createdAt: row.created_at
         }));
 
-        const { error } = await supabase.from('chopin_library').insert(rows);
-        if (error) throw error;
-
-        alert('Migration Successful! Local data has been moved to the cloud.');
-        localStorage.removeItem(STORAGE_KEY); // Clear local
-        document.getElementById('migration-banner').remove();
-        await fetchLibrary(); // Refresh
-
-    } catch (err) {
-        console.error(err);
-        alert('Migration Failed: ' + err.message);
-        btn.textContent = 'Try Again';
-        btn.disabled = false;
-    }
-}
-
-// --- Database Functions ---
-
-async function fetchLibrary() {
-    if (!currentUser) return;
-
-    // Fetch from Supabase
-    const { data, error } = await supabase
-        .from('chopin_library')
-        .select('*'); // RLS ensures only user's data
-
-    if (error) {
-        console.error('Fetch error:', error);
-        return;
+        renderLibrary();
     }
 
-    // Map back to app format (camelCase)
-    library = data.map(row => ({
-        id: row.id,
-        userId: row.user_id, // Added for ownership check
-        opus: row.opus,
-        number: row.number,
-        titleJa: row.title_ja,
-        titleEn: row.title_en,
-        genre: row.genre,
-        year: row.year,
-        rating: row.rating,
-        comment: row.comment,
-        youtubeUrls: row.youtube_urls || [],
-        createdAt: row.created_at
-    }));
+    async function saveSong() {
+        const op = opusSelect.value;
+        const no = noSelect.value;
+        const comment = document.getElementById('comment').value.trim();
 
-    renderLibrary();
-}
+        if (!op || !no) {
+            alert('Opus and No. are required.');
+            return;
+        }
 
-async function saveSong() {
-    const op = opusSelect.value;
-    const no = noSelect.value;
-    const comment = document.getElementById('comment').value.trim();
+        const work = window.chopinWorks.find(w => w.op === op && w.no === no);
+        if (!work) return;
 
-    if (!op || !no) {
-        alert('Opus and No. are required.');
-        return;
+        // Collect YouTube URLs
+        const youtubeInputs = document.querySelectorAll('input[name="youtube[]"]');
+        const youtubeUrls = Array.from(youtubeInputs).map(i => i.value.trim()).filter(u => u !== '');
+
+        // Rating
+        const ratingInput = document.querySelector('input[name="rating"]:checked');
+        const rating = ratingInput ? parseFloat(ratingInput.value) : 0;
+
+        const songData = {
+            user_id: currentUser.id,
+            opus: op,
+            number: no,
+            title_ja: work.titleJa,
+            title_en: work.titleEn,
+            genre: work.genre,
+            year: work.year,
+            rating: rating,
+            comment: comment,
+            youtube_urls: youtubeUrls
+        };
+
+        if (editingId) {
+            // Update
+            const { error } = await supabase
+                .from('chopin_library')
+                .update(songData)
+                .eq('id', editingId); // RLS protects this
+
+            if (error) { alert('Error updating: ' + error.message); return; }
+        } else {
+            // Insert
+            const { error } = await supabase
+                .from('chopin_library')
+                .insert([songData]);
+
+            if (error) { alert('Error adding: ' + error.message); return; }
+        }
+
+        resetForm();
+        await fetchLibrary(); // Refresh from server
     }
 
-    const work = window.chopinWorks.find(w => w.op === op && w.no === no);
-    if (!work) return;
+    window.deleteSongInternal = async function (id) {
+        if (!confirm('削除してよろしいですか？')) return;
 
-    // Collect YouTube URLs
-    const youtubeInputs = document.querySelectorAll('input[name="youtube[]"]');
-    const youtubeUrls = Array.from(youtubeInputs).map(i => i.value.trim()).filter(u => u !== '');
+        const { error } = await supabase
+            .from('chopin_library')
+            .delete()
+            .eq('id', id);
 
-    // Rating
-    const ratingInput = document.querySelector('input[name="rating"]:checked');
-    const rating = ratingInput ? parseFloat(ratingInput.value) : 0;
+        if (error) {
+            alert('Delete failed: ' + error.message);
+            return;
+        }
 
-    const songData = {
-        user_id: currentUser.id,
-        opus: op,
-        number: no,
-        title_ja: work.titleJa,
-        title_en: work.titleEn,
-        genre: work.genre,
-        year: work.year,
-        rating: rating,
-        comment: comment,
-        youtube_urls: youtubeUrls
+        if (editingId === id) resetForm();
+        await fetchLibrary();
     };
 
-    if (editingId) {
-        // Update
-        const { error } = await supabase
-            .from('chopin_library')
-            .update(songData)
-            .eq('id', editingId); // RLS protects this
-
-        if (error) { alert('Error updating: ' + error.message); return; }
-    } else {
-        // Insert
-        const { error } = await supabase
-            .from('chopin_library')
-            .insert([songData]);
-
-        if (error) { alert('Error adding: ' + error.message); return; }
-    }
-
-    resetForm();
-    await fetchLibrary(); // Refresh from server
-}
-
-window.deleteSongInternal = async function (id) {
-    if (!confirm('削除してよろしいですか？')) return;
-
-    const { error } = await supabase
-        .from('chopin_library')
-        .delete()
-        .eq('id', id);
-
-    if (error) {
-        alert('Delete failed: ' + error.message);
-        return;
-    }
-
-    if (editingId === id) resetForm();
-    await fetchLibrary();
-};
-
-// --- UI Helpers (Same as before) ---
-function initGenreFilter() {
-    const filterSelect = document.getElementById('genre-filter');
-    if (!filterSelect || !window.chopinWorks) return;
-    const genres = [...new Set(window.chopinWorks.map(w => w.genre))].sort();
-    genres.forEach(g => {
-        const option = document.createElement('option');
-        option.value = g; option.textContent = g; filterSelect.appendChild(option);
-    });
-}
-
-function initOpusDropdown() {
-    if (!window.chopinWorks) return;
-    const opuses = [...new Set(window.chopinWorks.map(w => w.op))].sort((a, b) => parseFloat(a) - parseFloat(b));
-    opuses.forEach(op => {
-        const option = document.createElement('option');
-        option.value = op; option.textContent = `Op.${op}`; opusSelect.appendChild(option);
-    });
-}
-
-function handleOpusChange() {
-    const selectedOp = opusSelect.value;
-    noSelect.innerHTML = '<option value="" disabled selected>Select No.</option>';
-    noSelect.disabled = true;
-    titleInput.value = ''; genreInput.value = ''; yearInput.value = '';
-
-    if (!selectedOp) return;
-    const works = window.chopinWorks.filter(w => w.op === selectedOp);
-    if (works.length > 0) {
-        works.sort((a, b) => parseInt(a.no) - parseInt(b.no));
-        if (works.length === 1) {
-            const work = works[0];
+    // --- UI Helpers (Same as before) ---
+    function initGenreFilter() {
+        const filterSelect = document.getElementById('genre-filter');
+        if (!filterSelect || !window.chopinWorks) return;
+        const genres = [...new Set(window.chopinWorks.map(w => w.genre))].sort();
+        genres.forEach(g => {
             const option = document.createElement('option');
-            option.value = work.no; option.textContent = '-'; noSelect.appendChild(option);
-            noSelect.value = work.no; noSelect.disabled = true; noSelect.classList.add('readonly-input');
-        } else {
-            works.forEach(work => {
+            option.value = g; option.textContent = g; filterSelect.appendChild(option);
+        });
+    }
+
+    function initOpusDropdown() {
+        if (!window.chopinWorks) return;
+        const opuses = [...new Set(window.chopinWorks.map(w => w.op))].sort((a, b) => parseFloat(a) - parseFloat(b));
+        opuses.forEach(op => {
+            const option = document.createElement('option');
+            option.value = op; option.textContent = `Op.${op}`; opusSelect.appendChild(option);
+        });
+    }
+
+    function handleOpusChange() {
+        const selectedOp = opusSelect.value;
+        noSelect.innerHTML = '<option value="" disabled selected>Select No.</option>';
+        noSelect.disabled = true;
+        titleInput.value = ''; genreInput.value = ''; yearInput.value = '';
+
+        if (!selectedOp) return;
+        const works = window.chopinWorks.filter(w => w.op === selectedOp);
+        if (works.length > 0) {
+            works.sort((a, b) => parseInt(a.no) - parseInt(b.no));
+            if (works.length === 1) {
+                const work = works[0];
                 const option = document.createElement('option');
-                option.value = work.no; option.textContent = `No.${work.no}`; noSelect.appendChild(option);
-            });
-            noSelect.selectedIndex = 0; noSelect.disabled = false;
+                option.value = work.no; option.textContent = '-'; noSelect.appendChild(option);
+                noSelect.value = work.no; noSelect.disabled = true; noSelect.classList.add('readonly-input');
+            } else {
+                works.forEach(work => {
+                    const option = document.createElement('option');
+                    option.value = work.no; option.textContent = `No.${work.no}`; noSelect.appendChild(option);
+                });
+                noSelect.selectedIndex = 0; noSelect.disabled = false;
+            }
+            handleNoChange();
         }
+    }
+
+    function handleNoChange() {
+        const selectedOp = opusSelect.value;
+        const selectedNo = noSelect.value;
+        if (!selectedOp || !selectedNo) return;
+        const work = window.chopinWorks.find(w => w.op === selectedOp && w.no === selectedNo);
+        if (work) {
+            titleInput.value = `${work.titleJa} (${work.titleEn})`;
+            genreInput.value = work.genre;
+            yearInput.value = work.year;
+        }
+    }
+
+    function handleYoutubeSearch() {
+        const op = opusSelect.value;
+        const no = noSelect.value;
+
+        if (!op || !no) {
+            alert('YouTubeで検索するには、先に「作品番号(Opus)」と「No.」を選択してください。');
+            return;
+        }
+
+        const work = window.chopinWorks.find(w => w.op === op && w.no === no);
+        if (!work) return;
+
+        // Construct search query
+        // Example: "Chopin Op.64 No.1 Waltz" or "Chopin Op.11 Piano Concerto"
+        const query = `Chopin Op.${op} ${work.no !== '-' ? 'No.' + work.no : ''} ${work.titleEn}`;
+        const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+
+        window.open(searchUrl, '_blank');
+    }
+
+    function addYoutubeInput(value = '') {
+        const div = document.createElement('div');
+        div.className = 'youtube-input-row';
+        div.innerHTML = `<input type="url" name="youtube[]" placeholder="https://www.youtube.com/watch?v=..." value="${value}">`;
+        youtubeContainer.appendChild(div);
+    }
+
+    function editSong(id) {
+        const song = library.find(s => s.id === id);
+        if (!song) return;
+        editingId = id;
+        showFormSection();
+        submitBtn.classList.add('editing');
+        submitBtn.querySelector('span').textContent = '更新する';
+        cancelBtn.classList.add('active');
+
+        opusSelect.value = song.opus;
+        handleOpusChange();
+        noSelect.value = song.number;
+        if (noSelect.options.length <= 1) noSelect.disabled = true;
         handleNoChange();
-    }
-}
 
-function handleNoChange() {
-    const selectedOp = opusSelect.value;
-    const selectedNo = noSelect.value;
-    if (!selectedOp || !selectedNo) return;
-    const work = window.chopinWorks.find(w => w.op === selectedOp && w.no === selectedNo);
-    if (work) {
-        titleInput.value = `${work.titleJa} (${work.titleEn})`;
-        genreInput.value = work.genre;
-        yearInput.value = work.year;
-    }
-}
-    }
+        const ratingRadio = document.querySelector(`input[name="rating"][value="${song.rating}"]`);
+        if (ratingRadio) ratingRadio.checked = true;
 
-function handleYoutubeSearch() {
-    const op = opusSelect.value;
-    const no = noSelect.value;
+        document.getElementById('comment').value = song.comment;
 
-    if (!op || !no) {
-        alert('YouTubeで検索するには、先に「作品番号(Opus)」と「No.」を選択してください。');
-        return;
-    }
-
-    const work = window.chopinWorks.find(w => w.op === op && w.no === no);
-    if (!work) return;
-
-    // Construct search query
-    // Example: "Chopin Op.64 No.1 Waltz" or "Chopin Op.11 Piano Concerto"
-    const query = `Chopin Op.${op} ${work.no !== '-' ? 'No.' + work.no : ''} ${work.titleEn}`;
-    const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
-
-    window.open(searchUrl, '_blank');
-}
-
-function addYoutubeInput(value = '') {
-    const div = document.createElement('div');
-    div.className = 'youtube-input-row';
-    div.innerHTML = `<input type="url" name="youtube[]" placeholder="https://www.youtube.com/watch?v=..." value="${value}">`;
-    youtubeContainer.appendChild(div);
-}
-
-function editSong(id) {
-    const song = library.find(s => s.id === id);
-    if (!song) return;
-    editingId = id;
-    showFormSection();
-    submitBtn.classList.add('editing');
-    submitBtn.querySelector('span').textContent = '更新する';
-    cancelBtn.classList.add('active');
-
-    opusSelect.value = song.opus;
-    handleOpusChange();
-    noSelect.value = song.number;
-    if (noSelect.options.length <= 1) noSelect.disabled = true;
-    handleNoChange();
-
-    const ratingRadio = document.querySelector(`input[name="rating"][value="${song.rating}"]`);
-    if (ratingRadio) ratingRadio.checked = true;
-
-    document.getElementById('comment').value = song.comment;
-
-    youtubeContainer.innerHTML = `
+        youtubeContainer.innerHTML = `
             <label>YouTube URLs 
                 <div class="label-actions">
                     <button type="button" id="search-youtube-btn-edit" class="btn-icon-small" title="Search on YouTube">
@@ -569,24 +569,24 @@ function editSong(id) {
                         <i class="fa-solid fa-plus"></i></button>
                 </div>
             </label>`;
-    document.getElementById('add-youtube-btn-edit').addEventListener('click', () => addYoutubeInput(''));
-    document.getElementById('search-youtube-btn-edit').addEventListener('click', handleYoutubeSearch);
-    if (song.youtubeUrls && song.youtubeUrls.length > 0) {
-        song.youtubeUrls.forEach(url => addYoutubeInput(url));
-    } else {
-        addYoutubeInput('');
+        document.getElementById('add-youtube-btn-edit').addEventListener('click', () => addYoutubeInput(''));
+        document.getElementById('search-youtube-btn-edit').addEventListener('click', handleYoutubeSearch);
+        if (song.youtubeUrls && song.youtubeUrls.length > 0) {
+            song.youtubeUrls.forEach(url => addYoutubeInput(url));
+        } else {
+            addYoutubeInput('');
+        }
     }
-}
 
-function resetForm() {
-    songForm.reset();
-    editingId = null;
-    submitBtn.classList.remove('editing');
-    submitBtn.querySelector('span').textContent = '登録する';
-    cancelBtn.classList.remove('active');
-    noSelect.innerHTML = '<option value="" disabled selected>Select No.</option>';
-    noSelect.disabled = true;
-    youtubeContainer.innerHTML = `
+    function resetForm() {
+        songForm.reset();
+        editingId = null;
+        submitBtn.classList.remove('editing');
+        submitBtn.querySelector('span').textContent = '登録する';
+        cancelBtn.classList.remove('active');
+        noSelect.innerHTML = '<option value="" disabled selected>Select No.</option>';
+        noSelect.disabled = true;
+        youtubeContainer.innerHTML = `
             <label>YouTube URLs 
                 <div class="label-actions">
                     <button type="button" id="search-youtube-btn" class="btn-icon-small" title="Search on YouTube">
@@ -596,113 +596,113 @@ function resetForm() {
                         <i class="fa-solid fa-plus"></i></button>
                 </div>
             </label>`;
-    document.getElementById('add-youtube-btn').addEventListener('click', () => addYoutubeInput(''));
-    document.getElementById('search-youtube-btn').addEventListener('click', handleYoutubeSearch);
-    addYoutubeInput('');
-    hideFormSection();
-}
-
-// --- Modern UI Toggles ---
-function showFormSection() {
-    addPieceSection.style.display = 'block';
-    addPieceSection.scrollIntoView({ behavior: 'smooth' });
-}
-
-function hideFormSection() {
-    addPieceSection.style.display = 'none';
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function renderLibrary() {
-    let displayList = library.filter(song => {
-        if (genreFilter && song.genre !== genreFilter) return false;
-        return true;
-    });
-
-    const { key, direction } = sortConfig;
-    displayList.sort((a, b) => {
-        let valA, valB;
-        if (key === 'rating') { valA = a.rating; valB = b.rating; }
-        else { valA = parseFloat(a.opus); valB = parseFloat(b.opus); }
-        let comparison = 0;
-        if (valA > valB) comparison = 1; if (valA < valB) comparison = -1;
-        if (direction === 'desc') comparison *= -1;
-        if (comparison === 0) {
-            if (key !== 'op') {
-                const opA = parseFloat(a.opus); const opB = parseFloat(b.opus);
-                if (opA !== opB) return opA - opB;
-            }
-            const noA = parseInt(a.number); const noB = parseInt(b.number);
-            return noA - noB;
-        }
-        return comparison;
-    });
-
-    document.querySelectorAll('.song-table th').forEach(th => {
-        th.classList.remove('sorted-asc', 'sorted-desc');
-        if (th.dataset.sort === key) th.classList.add(`sorted-${direction}`);
-    });
-
-    songListBody.innerHTML = '';
-    if (displayList.length === 0) {
-        if (library.length > 0) {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td colspan="8" class="empty-state">条件に一致する曲はありません。</td>`;
-            songListBody.appendChild(tr);
-            document.querySelector('.song-table').style.display = 'table';
-            emptyState.style.display = 'none';
-            return;
-        }
-        emptyState.style.display = 'block';
-        document.querySelector('.song-table').style.display = 'none';
-        return;
-    } else {
-        emptyState.style.display = 'none';
-        document.querySelector('.song-table').style.display = 'table';
+        document.getElementById('add-youtube-btn').addEventListener('click', () => addYoutubeInput(''));
+        document.getElementById('search-youtube-btn').addEventListener('click', handleYoutubeSearch);
+        addYoutubeInput('');
+        hideFormSection();
     }
 
-    // Mobile Comment Toggle Logic
-    window.toggleComment = function (btn) {
-        // New Logic: ID based (data-comment-id)
-        const id = btn.dataset.commentId;
-        const content = document.getElementById(id);
+    // --- Modern UI Toggles ---
+    function showFormSection() {
+        addPieceSection.style.display = 'block';
+        addPieceSection.scrollIntoView({ behavior: 'smooth' });
+    }
 
-        // Toggle Icon and Display
-        if (content.style.display === 'none' || content.style.display === '') {
-            content.style.display = 'block';
-            // Active Style (Solid Blue)
-            btn.style.background = '#4f83b0';
-            btn.style.color = '#fff';
-            btn.style.borderColor = '#4f83b0';
-        } else {
-            content.style.display = 'none';
-            // Inactive Style (White)
-            btn.style.background = 'white';
-            btn.style.color = '#4f83b0';
-            btn.style.borderColor = '#eee';
-        }
-    };
+    function hideFormSection() {
+        addPieceSection.style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
 
-    displayList.forEach(song => {
-        const tr = document.createElement('tr');
+    function renderLibrary() {
+        let displayList = library.filter(song => {
+            if (genreFilter && song.genre !== genreFilter) return false;
+            return true;
+        });
 
-        const stars = generateStars(song.rating);
-        const linksHtml = generateLinksHtml(song.youtubeUrls);
-
-        // Smart Number Logic
-        let displayNo = `No.${song.number}`;
-        // Check works definition
-        if (window.chopinWorks) {
-            const worksInOp = window.chopinWorks.filter(w => w.op === song.opus);
-            if (worksInOp.length === 1) {
-                displayNo = '-';
+        const { key, direction } = sortConfig;
+        displayList.sort((a, b) => {
+            let valA, valB;
+            if (key === 'rating') { valA = a.rating; valB = b.rating; }
+            else { valA = parseFloat(a.opus); valB = parseFloat(b.opus); }
+            let comparison = 0;
+            if (valA > valB) comparison = 1; if (valA < valB) comparison = -1;
+            if (direction === 'desc') comparison *= -1;
+            if (comparison === 0) {
+                if (key !== 'op') {
+                    const opA = parseFloat(a.opus); const opB = parseFloat(b.opus);
+                    if (opA !== opB) return opA - opB;
+                }
+                const noA = parseInt(a.number); const noB = parseInt(b.number);
+                return noA - noB;
             }
-        }
-        // Ownership Check
-        const isOwner = (currentUser && song.userId === currentUser.id);
+            return comparison;
+        });
 
-        // Mobile Footer: [Comment Icon (Left)] [Edit/Delete (Right - Owner Only)]
-        const mobileFooterHtml = `
+        document.querySelectorAll('.song-table th').forEach(th => {
+            th.classList.remove('sorted-asc', 'sorted-desc');
+            if (th.dataset.sort === key) th.classList.add(`sorted-${direction}`);
+        });
+
+        songListBody.innerHTML = '';
+        if (displayList.length === 0) {
+            if (library.length > 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="8" class="empty-state">条件に一致する曲はありません。</td>`;
+                songListBody.appendChild(tr);
+                document.querySelector('.song-table').style.display = 'table';
+                emptyState.style.display = 'none';
+                return;
+            }
+            emptyState.style.display = 'block';
+            document.querySelector('.song-table').style.display = 'none';
+            return;
+        } else {
+            emptyState.style.display = 'none';
+            document.querySelector('.song-table').style.display = 'table';
+        }
+
+        // Mobile Comment Toggle Logic
+        window.toggleComment = function (btn) {
+            // New Logic: ID based (data-comment-id)
+            const id = btn.dataset.commentId;
+            const content = document.getElementById(id);
+
+            // Toggle Icon and Display
+            if (content.style.display === 'none' || content.style.display === '') {
+                content.style.display = 'block';
+                // Active Style (Solid Blue)
+                btn.style.background = '#4f83b0';
+                btn.style.color = '#fff';
+                btn.style.borderColor = '#4f83b0';
+            } else {
+                content.style.display = 'none';
+                // Inactive Style (White)
+                btn.style.background = 'white';
+                btn.style.color = '#4f83b0';
+                btn.style.borderColor = '#eee';
+            }
+        };
+
+        displayList.forEach(song => {
+            const tr = document.createElement('tr');
+
+            const stars = generateStars(song.rating);
+            const linksHtml = generateLinksHtml(song.youtubeUrls);
+
+            // Smart Number Logic
+            let displayNo = `No.${song.number}`;
+            // Check works definition
+            if (window.chopinWorks) {
+                const worksInOp = window.chopinWorks.filter(w => w.op === song.opus);
+                if (worksInOp.length === 1) {
+                    displayNo = '-';
+                }
+            }
+            // Ownership Check
+            const isOwner = (currentUser && song.userId === currentUser.id);
+
+            // Mobile Footer: [Comment Icon (Left)] [Edit/Delete (Right - Owner Only)]
+            const mobileFooterHtml = `
             <!-- Mobile Footer (Renamed to break cache) -->
             <div class="mobile-card-footer mobile-only" style="width: 100% !important; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px;">
                 
@@ -734,7 +734,7 @@ function renderLibrary() {
             </div>
             `;
 
-        tr.innerHTML = `
+            tr.innerHTML = `
                 <td class="col-op">Op.${song.opus}</td>
                 <td class="col-no">${displayNo}</td>
                 <td class="col-genre">${escapeHtml(song.genre)}</td>
@@ -763,74 +763,74 @@ function renderLibrary() {
                     ${mobileFooterHtml}
                 </td>
             `;
-        songListBody.appendChild(tr);
-    });
+            songListBody.appendChild(tr);
+        });
 
-    // Attach Event Listeners (Desktop & Mobile)
+        // Attach Event Listeners (Desktop & Mobile)
 
-    // Delete
-    const deleteHandler = (e) => deleteSongInternal(e.currentTarget.dataset.id);
-    document.querySelectorAll('.btn-delete-row').forEach(btn => btn.addEventListener('click', deleteHandler));
-    document.querySelectorAll('.btn-delete-row-mobile').forEach(btn => btn.addEventListener('click', deleteHandler));
+        // Delete
+        const deleteHandler = (e) => deleteSongInternal(e.currentTarget.dataset.id);
+        document.querySelectorAll('.btn-delete-row').forEach(btn => btn.addEventListener('click', deleteHandler));
+        document.querySelectorAll('.btn-delete-row-mobile').forEach(btn => btn.addEventListener('click', deleteHandler));
 
-    // Edit
-    const editHandler = (e) => editSong(e.currentTarget.dataset.id);
-    document.querySelectorAll('.btn-edit-row').forEach(btn => btn.addEventListener('click', editHandler));
-    document.querySelectorAll('.btn-edit-row-mobile').forEach(btn => btn.addEventListener('click', editHandler));
-}
-// Expose helpers globally for onclick handlers
-window.editSong = editSong;
-window.openVideoModal = openVideoModal;
-
-function openVideoModal(videoId) {
-    if (!videoId) return;
-    const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
-    youtubeIframe.src = embedUrl;
-    videoModal.style.display = 'flex';
-    document.body.style.overflow = 'hidden'; // Prevent background scrolling
-}
-
-function closeVideoModal() {
-    youtubeIframe.src = '';
-    videoModal.style.display = 'none';
-    document.body.style.overflow = ''; // Restore scrolling
-}
-
-function generateStars(rating) {
-    let html = '';
-    for (let i = 1; i <= 5; i++) {
-        if (rating >= i) html += '<i class="fa-solid fa-star"></i>';
-        else if (rating === i - 0.5) html += '<i class="fa-solid fa-star-half-stroke"></i>';
-        else html += '<i class="fa-regular fa-star" style="color:#ddd"></i>';
+        // Edit
+        const editHandler = (e) => editSong(e.currentTarget.dataset.id);
+        document.querySelectorAll('.btn-edit-row').forEach(btn => btn.addEventListener('click', editHandler));
+        document.querySelectorAll('.btn-edit-row-mobile').forEach(btn => btn.addEventListener('click', editHandler));
     }
-    return html;
-}
+    // Expose helpers globally for onclick handlers
+    window.editSong = editSong;
+    window.openVideoModal = openVideoModal;
 
-function generateLinksHtml(urls) {
-    if (!urls || urls.length === 0) return '<span style="color:#555">-</span>';
-    let html = '<div class="yt-links-wrapper">';
-    urls.forEach(url => {
-        const videoId = getYoutubeId(url);
-        if (videoId) {
-            const thumbUrl = `https://img.youtube.com/vi/${videoId}/default.jpg`;
-            html += `<a href="#" class="yt-thumbnail-link" style="background-image: url('${thumbUrl}')" onclick="openVideoModal('${videoId}'); return false;"><span class="yt-icon-overlay"><i class="fa-brands fa-youtube"></i></span></a>`;
-        } else {
-            html += `<a href="${url}" target="_blank"><i class="fa-solid fa-link"></i></a>`;
+    function openVideoModal(videoId) {
+        if (!videoId) return;
+        const embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+        youtubeIframe.src = embedUrl;
+        videoModal.style.display = 'flex';
+        document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    }
+
+    function closeVideoModal() {
+        youtubeIframe.src = '';
+        videoModal.style.display = 'none';
+        document.body.style.overflow = ''; // Restore scrolling
+    }
+
+    function generateStars(rating) {
+        let html = '';
+        for (let i = 1; i <= 5; i++) {
+            if (rating >= i) html += '<i class="fa-solid fa-star"></i>';
+            else if (rating === i - 0.5) html += '<i class="fa-solid fa-star-half-stroke"></i>';
+            else html += '<i class="fa-regular fa-star" style="color:#ddd"></i>';
         }
-    });
-    html += '</div>';
-    return html;
-}
+        return html;
+    }
 
-function getYoutubeId(url) {
-    if (!url) return null;
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
-}
+    function generateLinksHtml(urls) {
+        if (!urls || urls.length === 0) return '<span style="color:#555">-</span>';
+        let html = '<div class="yt-links-wrapper">';
+        urls.forEach(url => {
+            const videoId = getYoutubeId(url);
+            if (videoId) {
+                const thumbUrl = `https://img.youtube.com/vi/${videoId}/default.jpg`;
+                html += `<a href="#" class="yt-thumbnail-link" style="background-image: url('${thumbUrl}')" onclick="openVideoModal('${videoId}'); return false;"><span class="yt-icon-overlay"><i class="fa-brands fa-youtube"></i></span></a>`;
+            } else {
+                html += `<a href="${url}" target="_blank"><i class="fa-solid fa-link"></i></a>`;
+            }
+        });
+        html += '</div>';
+        return html;
+    }
 
-function escapeHtml(text) {
-    if (!text) return '';
-    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-}
+    function getYoutubeId(url) {
+        if (!url) return null;
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
 });
