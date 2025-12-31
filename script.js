@@ -128,9 +128,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const cancelBtn = document.getElementById('cancel-edit-btn');
     const showFormBtn = document.getElementById('show-form-btn');
     const addPieceSection = document.getElementById('add-song-section');
-    const videoModal = document.getElementById('video-modal');
     const youtubeIframe = document.getElementById('youtube-iframe');
     const modalCloseBtn = document.getElementById('modal-close-btn');
+    const commentModalCloseBtn = document.getElementById('comment-modal-close-btn');
 
     const opusSelect = document.getElementById('opus-select');
     const noSelect = document.getElementById('no-select');
@@ -172,8 +172,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Modal Close Listeners
     modalCloseBtn.addEventListener('click', closeVideoModal);
-    videoModal.addEventListener('click', (e) => {
+    commentModalCloseBtn.addEventListener('click', () => {
+        commentModal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (e) => {
         if (e.target === videoModal) closeVideoModal();
+        if (e.target === commentModal) {
+            commentModal.style.display = 'none';
+        }
     });
 
     // --- App Listeners ---
