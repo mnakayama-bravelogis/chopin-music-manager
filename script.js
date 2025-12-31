@@ -1,6 +1,6 @@
 // Data is loaded from data.js via script tag (window.chopinWorks)
 
-// version 2.5.2
+// version 2.5.3
 // Fail-safe: Inject critical mobile styles directly to bypass CSS caching issues
 (function injectMobileStyles() {
     const style = document.createElement('style');
@@ -38,6 +38,43 @@
                 display: block !important;
                 padding: 0 !important;
                 border: none !important;
+            }
+
+            /* Mobile Controls Bar (v2.5.3 DECISIVE FIX) */
+            .mobile-controls-bar {
+                background: rgba(255, 255, 255, 0.4) !important;
+                padding: 1rem !important;
+                border-radius: 12px !important;
+                margin-bottom: 1.2rem !important;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 0.8rem !important;
+            }
+            .mobile-controls-bar .control-group {
+                display: flex !important;
+                flex-direction: row !important;
+                align-items: center !important;
+                gap: 0.5rem !important;
+                width: 100% !important;
+            }
+            .mobile-controls-bar label {
+                font-size: 0.85rem !important;
+                font-weight: bold !important;
+                color: #2d4e7c !important; /* var(--color-5) */
+                margin-bottom: 0 !important;
+                width: 60px !important; /* Fixed width for alignment */
+                white-space: nowrap !important;
+                text-align: left !important;
+            }
+            .mobile-select {
+                flex: 1 !important;
+                padding: 0.6rem !important;
+                font-size: 0.95rem !important;
+                border-radius: 8px !important;
+                border: 1px solid #a2c6e7 !important; /* var(--color-2) */
+                background: #fff !important;
+                color: #2d4e7c !important;
+                min-width: 0 !important;
             }
         }
     `;
